@@ -1,0 +1,44 @@
+{
+  "name": "node-hub",
+  "version": "1.0.2",
+  "description": "Management hub",
+  "main": "app.js",
+  "bin": "./bin/node-hub",
+  "dependencies": {
+    "async": "*",
+    "config": "*",
+    "noble": "*",
+    "bleacon": "*",
+    "signalr-client": "*",
+    "winston": "*",
+    "string": "*",
+    "wireless": "*",
+    "pm2": "~1.0.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.3.0",
+    "eslint": "^2.8.0",
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^2.0.0",
+    "istanbul": "^0.4.3",
+    "mocha": "^2.4.5",
+    "mocha-teamcity-reporter": ">=0.0.1",
+    "semver": "^5.1.0",
+    "sinon": "^1.17.3",
+    "sinon-chai": "^2.8.0"
+  },
+  "scripts": {
+    "lint": "gulp lint",
+    "test": "istanbul cover ./node_modules/.bin/_mocha -- -R spec test/**/*.js",
+    "test:teamcity": "istanbul cover ./node_modules/.bin/_mocha -- -R mocha-teamcity-reporter test/**/*.js",
+    "publish": "gulp publish",
+    "start": "pm2 start --no-daemon processes.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:bluesensenetworks/node-hub.git"
+  },
+  "author": "Vladimir Petrov / Blue Sense Networks ltd",
+  "license": "ISC"
+}

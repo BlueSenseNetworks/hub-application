@@ -1,0 +1,9 @@
+{
+  "HubName": "SuperNodesConnectionHub",
+  "Logger": {
+    "FolderName": "/var/log/node-hub",
+    "FileName": "log.txt"
+  },
+  "WiFi-Interface": "wlan0",
+  "OnReconnect_ScanRestartDelay": 10000
+}
