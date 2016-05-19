@@ -13,7 +13,7 @@
     "winston": "*",
     "string": "*",
     "wireless": "*",
-    "pm2": "~1.0.1"
+    "pm2": "~1.1.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
