@@ -31,15 +31,26 @@ if (!supernode)
   process.exit(-1);
 }
 
+function connect() {
+  adapter.connect(supernode.commands, function(){
+    logger.info(machine.role() + ' started!');
+  });
+}
+
 module.exports = {
   start: function(){
     logger.info('supernode starting...');
 
     adapter.on('connected', supernode.connected.bind(supernode));
     adapter.on('disconnected', supernode.disconnected.bind(supernode));
-
-    adapter.connect(supernode.commands, function(){
-      logger.info(machine.role() + ' started!');
+    adapter.on('bindingError', () => {
+      var delay = 30;
+      logger.info(`failed connecting to server, retrying in ${delay} seconds...`);
+      setTimeout(() => {
+        connect();
+      }, delay * 1000);
     });
+
+    connect();
   }
 };

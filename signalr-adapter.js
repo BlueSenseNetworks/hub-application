@@ -80,6 +80,11 @@ SignalRAdapter.prototype.connect = function(server, done) {
     self.emit("disconnected");
   };
 
+  self.client.serviceHandlers.bindingError = function(){
+    logger.info("=> binding error!");
+    self.emit("bindingError");
+  };
+
   logger.info("Connecting to " + config.get('PlatformConnectionUrl'));
 };
 
