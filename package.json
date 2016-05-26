@@ -1,6 +1,6 @@
 {
   "name": "node-hub",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Management hub",
   "main": "app.js",
   "bin": "./bin/node-hub",
