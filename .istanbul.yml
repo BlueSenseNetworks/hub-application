@@ -1,0 +1,8 @@
+instrumentation:
+    excludes: [
+        'lib/bluesense-superhub/messaging',
+        'lib/bluesense-superhub/ble-scanner.js',
+        'lib/bluesense-superhub/logger.js',
+        'lib/bluesense-superhub/config.js',
+        'lib/bluesense-superhub/websocket.js'
+    ]

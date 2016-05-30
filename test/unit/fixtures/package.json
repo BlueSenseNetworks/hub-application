@@ -34,7 +34,6 @@
     "test": "istanbul cover ./node_modules/.bin/_mocha -- --require test/support/bootstrap.js -R spec test/unit/*.js",
     "test-integration": "mocha --require test/support/bootstrap.js -R spec test/integration/*.js",
     "test:teamcity": "istanbul cover ./node_modules/.bin/_mocha -- --require test/support/bootstrap.js -R mocha-teamcity-reporter test/**/*.js",
-    "test-acceptance": "cucumberjs",
     "start": "pm2 start --no-daemon processes.json"
   },
   "repository": {

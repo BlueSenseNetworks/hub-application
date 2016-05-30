@@ -1,19 +1,19 @@
 const Wireless = require('wireless');
-const WirelessAdapter = require('../../wireless-adapter');
+const WirelessAdapter = require('../../lib/bluesense-superhub/wireless');
 
 const chai = require('chai');
 const sinon = require('sinon');
 
 chai.should();
 
-describe('WirelessAdapter', function () {
-  before(function () {
+describe('WirelessAdapter', function() {
+  before(function() {
     this.networkFixture = {
       ssid: 'test'
     };
   });
 
-  beforeEach(function () {
+  beforeEach(function() {
     this.sandbox = sinon.sandbox.create();
     this.sandbox.useFakeTimers();
 
@@ -26,13 +26,13 @@ describe('WirelessAdapter', function () {
     this.wirelessAdapter = new WirelessAdapter(this.wirelessMock.object);
   });
 
-  afterEach(function () {
+  afterEach(function() {
     this.wirelessMock.object.removeAllListeners();
     this.sandbox.restore();
   });
 
-  describe('#start()', function () {
-    it('should start the wireless tracking module', function () {
+  describe('#start()', function() {
+    it('should start the wireless tracking module', function() {
       this.wirelessMock.expects('start').once();
 
       this.wirelessAdapter.start();
@@ -41,8 +41,8 @@ describe('WirelessAdapter', function () {
     });
   });
 
-  describe('#stop()', function () {
-    it('should stop the wireless tracking module', function () {
+  describe('#stop()', function() {
+    it('should stop the wireless tracking module', function() {
       this.wirelessMock.expects('stop').once();
 
       this.wirelessAdapter.stop();
@@ -51,16 +51,16 @@ describe('WirelessAdapter', function () {
     });
   });
 
-  describe('wireless module event handling', function () {
-    context('join', function () {
-      it('should save the network that was joined', function () {
+  describe('wireless module event handling', function() {
+    context('join', function() {
+      it('should save the network that was joined', function() {
         this.wirelessMock.object.emit('join', this.networkFixture);
 
         this.wirelessAdapter.connected.should.equal(true);
         this.wirelessAdapter.network.ssid.should.equal('test');
       });
 
-      it('should emit the event for anyone interested', function () {
+      it('should emit the event for anyone interested', function() {
         var spy = this.sandbox.spy();
 
         this.wirelessAdapter.on(WirelessAdapter.events.join, spy);
@@ -72,14 +72,14 @@ describe('WirelessAdapter', function () {
       });
     });
 
-    context('leave', function () {
-      it('should set the network status properties to indicate that we are not connected', function () {
+    context('leave', function() {
+      it('should set the network status properties to indicate that we are not connected', function() {
         this.wirelessMock.object.emit('leave');
 
         this.wirelessAdapter.connected.should.equal(false);
       });
 
-      it('should emit the event for anyone interested', function () {
+      it('should emit the event for anyone interested', function() {
         var spy = this.sandbox.spy();
 
         this.wirelessAdapter.on(WirelessAdapter.events.leave, spy);
@@ -90,8 +90,8 @@ describe('WirelessAdapter', function () {
       });
     });
 
-    context('appear', function () {
-      it('should emit the event for anyone interested', function () {
+    context('appear', function() {
+      it('should emit the event for anyone interested', function() {
         var spy = this.sandbox.spy();
 
         this.wirelessAdapter.on(WirelessAdapter.events.appear, spy);
@@ -103,8 +103,8 @@ describe('WirelessAdapter', function () {
       });
     });
 
-    context('vanish', function () {
-      it('should emit the event for anyone interested', function () {
+    context('vanish', function() {
+      it('should emit the event for anyone interested', function() {
         var spy = this.sandbox.spy();
 
         this.wirelessAdapter.on(WirelessAdapter.events.vanish, spy);
@@ -116,8 +116,8 @@ describe('WirelessAdapter', function () {
       });
     });
 
-    context('change', function () {
-      it('should emit the event for anyone interested', function () {
+    context('change', function() {
+      it('should emit the event for anyone interested', function() {
         var spy = this.sandbox.spy();
 
         this.wirelessAdapter.on(WirelessAdapter.events.change, spy);
@@ -129,8 +129,8 @@ describe('WirelessAdapter', function () {
       });
     });
 
-    context('error', function () {
-      it('should emit the event for anyone interested', function () {
+    context('error', function() {
+      it('should emit the event for anyone interested', function() {
         var spy = this.sandbox.spy();
 
         this.wirelessAdapter.on(WirelessAdapter.events.error, spy);

@@ -1,51 +1,43 @@
-const adapter = require('../../signalr-adapter');
-const machine = require('../../machine');
-const logger = require('../../logger');
+const Machine = require('../../lib/bluesense-superhub/machine');
 
-const chai = require('chai');
-const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
-chai.should();
-chai.use(sinonChai);
+describe('Server', function() {
+  beforeEach(function() {
+    this.sandbox = sinon.sandbox.create();
 
-describe('Server', function () {
-    beforeEach(function () {
-        this.sandbox = sinon.sandbox.create();
-        this.sandbox.useFakeTimers();
+    this.createSpy = this.sandbox.spy();
+    this.machineMock = this.sandbox.mock(Machine);
 
-        this.adapterMock = this.sandbox.mock(adapter);
-
-        this.sandbox.stub(logger.logger);
-
-        this.machineStub = this.sandbox.stub(machine);
-        this.machineStub.isController.returns(true);
-
-        this.server = require('../../server');
+    this.Server = proxyquire('../../lib/bluesense-superhub/server', {
+      './machine': this.machineMock.object,
+      './monitor': {
+        create: () => this.createSpy()
+      }
     });
 
-    afterEach(function () {
-        this.adapterMock.object.removeAllListeners();
+    this.server = this.Server.create();
+  });
 
-        this.sandbox.restore();
+  afterEach(function() {
+    this.sandbox.restore();
+  });
+
+  describe('#start()', function() {
+    context('machine role is not set', function() {
+      it('should throw an error if the machine role is not recognized', function() {
+        this.machineMock.expects('role').returns('something else');
+
+        this.server.start.bind(this.server).should.throw(Error);
+      });
     });
 
-    describe('#start()', function() {
-        context('no internet connectivity on startup', function() {
-            it('should retry to connect when it receives the bindingError event', function() {
-                var spy = this.sandbox.spy();
+    context('machine role is monitor', function() {
+      it('should create a new instance of the Monitor component', function() {
+        this.machineMock.expects('role').returns('Monitor');
 
-                this.server.start();
+        this.server.start();
 
-                //we haven't stubbed the controller, so we don't want it to start
-                this.adapterMock.object.on('connected', spy);
-
-                this.sandbox.clock.tick(30000);
-                this.adapterMock.object.emit('bindingError');
-                this.sandbox.clock.tick(30000);
-                this.adapterMock.object.emit('connected');
-
-                spy.should.have.been.calledOnce;
-            });
-        });
+        this.createSpy.should.have.been.calledOnce;
+      });
     });
+  });
 });

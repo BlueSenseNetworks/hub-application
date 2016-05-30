@@ -1,0 +1,60 @@
+{
+  "lo": [
+    {
+      "address": "127.0.0.1",
+      "netmask": "255.0.0.0",
+      "family": "IPv4",
+      "mac": "00:00:00:00:00:00",
+      "internal": true
+    },
+    {
+      "address": "::1",
+      "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+      "family": "IPv6",
+      "mac": "00:00:00:00:00:00",
+      "scopeid": 0,
+      "internal": true
+    }
+  ],
+  "eth0": [
+    {
+      "address": "192.168.1.100",
+      "netmask": "255.255.255.0",
+      "family": "IPv4",
+      "mac": "b8:27:eb:eb:3b:9a",
+      "internal": false
+    },
+    {
+      "address": "192.168.1.101",
+      "netmask": "255.255.255.0",
+      "family": "IPv4",
+      "mac": "b8:27:eb:eb:3b:9a",
+      "internal": false
+    },
+    {
+      "address": "fe80::ba27:ebff:feeb:3b9a",
+      "netmask": "ffff:ffff:ffff:ffff::",
+      "family": "IPv6",
+      "mac": "b8:27:eb:eb:3b:9a",
+      "scopeid": 2,
+      "internal": false
+    }
+  ],
+  "wlan0": [
+    {
+      "address": "192.168.1.51",
+      "netmask": "255.255.255.0",
+      "family": "IPv4",
+      "mac": "00:0f:60:08:db:ca",
+      "internal": false
+    },
+    {
+      "address": "fe80::20f:60ff:fe08:dbca",
+      "netmask": "ffff:ffff:ffff:ffff::",
+      "family": "IPv6",
+      "mac": "00:0f:60:08:db:ca",
+      "scopeid": 3,
+      "internal": false
+    }
+  ]
+}

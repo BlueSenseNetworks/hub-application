@@ -1,52 +1,66 @@
 {
-  "apps" : [{
-    "name"             : "supernode-monitor",
-    "script"           : "app.js",
-    "args"             : [],
-    "exec_mode"        : "cluster",
-    "instances"        : "1",
-    "error_file"       : "/var/log/node-hub/supernode-monitor-err.log",
-    "out_file"         : "/var/log/node-hub/supernode-monitor.log",
-    "log_date_format"  : "YYYY-MM-DD HH:mm Z",
-    "ignore_watch"     : ["[\\/\\\\]\\./", "node_modules", "logs"],
-    "watch"            : false,
-    "node_args"        : "",
-    "env": {
-      "SUPERNODE_ROLE" : "Monitor",
-      "NOBLE_HCI_DEVICE_ID" : "0"
+  "apps": [
+    {
+      "name": "superhub-monitor",
+      "script": "lib/bluesense-superhub.js",
+      "args": [],
+      "exec_mode": "cluster",
+      "instances": "1",
+      "error_file": "/var/log/node-hub/superhub-monitor-err.log",
+      "out_file": "/var/log/node-hub/superhub-monitor.log",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "ignore_watch": [
+        "[\\/\\\\]\\./",
+        "node_modules",
+        "logs"
+      ],
+      "watch": false,
+      "node_args": "",
+      "env": {
+        "SUPERHUB_ROLE": "Monitor",
+        "NOBLE_HCI_DEVICE_ID": "0"
+      }
+    },
+    {
+      "name": "superhub-controller",
+      "script": "lib/bluesense-superhub.js",
+      "args": [],
+      "exec_mode": "cluster",
+      "instances": "1",
+      "error_file": "/var/log/node-hub/superhub-controller-err.log",
+      "out_file": "/var/log/node-hub/superhub-controller.log",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "ignore_watch": [
+        "[\\/\\\\]\\./",
+        "node_modules",
+        "logs"
+      ],
+      "watch": false,
+      "node_args": "",
+      "env": {
+        "SUPERHUB_ROLE": "Controller",
+        "NOBLE_HCI_DEVICE_ID": "1"
+      }
+    },
+    {
+      "name": "superhub-router",
+      "script": "lib/bluesense-superhub.js",
+      "args": [],
+      "exec_mode": "cluster",
+      "instances": "1",
+      "error_file": "/var/log/node-hub/superhub-router-err.log",
+      "out_file": "/var/log/node-hub/superhub-router.log",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "ignore_watch": [
+        "[\\/\\\\]\\./",
+        "node_modules",
+        "logs"
+      ],
+      "watch": false,
+      "node_args": "",
+      "env": {
+        "SUPERHUB_ROLE": "Router"
+      }
     }
-  },
-  {
-    "name"             : "supernode-controller",
-    "script"           : "app.js",
-    "args"             : [],
-    "exec_mode"        : "cluster",
-    "instances"        : "1",
-    "error_file"       : "/var/log/node-hub/supernode-controller-err.log",
-    "out_file"         : "/var/log/node-hub/supernode-controller.log",
-    "log_date_format"  : "YYYY-MM-DD HH:mm Z",
-    "ignore_watch"     : ["[\\/\\\\]\\./", "node_modules", "logs"],
-    "watch"            : false,
-    "node_args"        : "",
-    "env": {
-      "SUPERNODE_ROLE" : "Controller",
-      "NOBLE_HCI_DEVICE_ID" : "1"
-    }
-  },
-  {
-    "name"             : "supernode-supervisor",
-    "script"           : "app.js",
-    "args"             : [],
-    "exec_mode"        : "cluster",
-    "instances"        : "1",
-    "error_file"       : "/var/log/node-hub/supernode-supervisor-err.log",
-    "out_file"         : "/var/log/node-hub/supernode-supervisor.log",
-    "log_date_format"  : "YYYY-MM-DD HH:mm Z",
-    "ignore_watch"     : ["[\\/\\\\]\\./", "node_modules", "logs"],
-    "watch"            : false,
-    "node_args"        : "",
-    "env": {
-      "SUPERNODE_ROLE" : "Supervisor"
-    }
-  }]
- }
+  ]
+}
