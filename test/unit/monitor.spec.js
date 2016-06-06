@@ -19,7 +19,7 @@ describe('Monitor', function() {
         create: () => this.bleScannerMock.object
       },
       './logger': {
-        logger: this.loggerStub.object
+        getInstance: () => this.loggerStub.object
       }
     });
 
@@ -33,45 +33,42 @@ describe('Monitor', function() {
   });
 
   describe('message broker event handling', function() {
-    context('message', function() {
-      context(Message.type.startBleScan, function() {
-        it('should start scanning for BLE devices', function() {
-          this.bleScannerMock.expects('startScan').once();
+    context('ready', function() {
+      it('should start scanning for BLE devices', function() {
+        this.bleScannerMock.expects('startScan').once();
 
-          this.busMock.object.emit('message', new Message(Message.type.startBleScan));
+        this.busMock.object.emit('ready');
 
-          this.bleScannerMock.verify();
-        });
+        this.bleScannerMock.verify();
       });
 
-      context(Message.type.stopBleScan, function() {
-        it('should stop the BLE scan', function() {
-          this.bleScannerMock.expects('stopScan').once();
+      it('should handle the event only once, ignoring any further fluctuations', function() {
+        this.bleScannerMock.expects('startScan').once();
 
-          this.busMock.object.emit('message', new Message(Message.type.stopBleScan));
+        this.busMock.object.emit('ready');
+        this.busMock.object.emit('ready');
 
-          this.bleScannerMock.verify();
-        });
+        this.bleScannerMock.verify();
       });
+    });
 
-      context(Message.type.connectedToPlatform, function() {
-        it('should start scanning for BLE devices', function() {
-          this.bleScannerMock.expects('startScan').once();
+    context(Message.type.startBleScan, function() {
+      it('should start scanning for BLE devices', function() {
+        this.bleScannerMock.expects('startScan').once();
 
-          this.busMock.object.emit('message', new Message(Message.type.connectedToPlatform));
+        this.busMock.object.emit(Message.type.startBleScan);
 
-          this.bleScannerMock.verify();
-        });
+        this.bleScannerMock.verify();
       });
+    });
 
-      context(Message.type.disconnectedFromPlatform, function() {
-        it('should stop the BLE scan', function() {
-          this.bleScannerMock.expects('stopScan').once();
+    context(Message.type.stopBleScan, function() {
+      it('should stop the BLE scan', function() {
+        this.bleScannerMock.expects('stopScan').once();
 
-          this.busMock.object.emit('message', new Message(Message.type.disconnectedFromPlatform));
+        this.busMock.object.emit(Message.type.stopBleScan);
 
-          this.bleScannerMock.verify();
-        });
+        this.bleScannerMock.verify();
       });
     });
   });

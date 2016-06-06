@@ -3,6 +3,7 @@ const Bus = require('../../lib/bluesense-superhub/messaging/bus');
 const Wireless = require('../../lib/bluesense-superhub/wireless');
 const Message = require('../../lib/bluesense-superhub/models/message');
 const InfoMessage = require('../../lib/bluesense-superhub/models/messages/info');
+const ConnectWifiMessage = require('../../lib/bluesense-superhub/models/messages/connect-wifi');
 const Logger = require('../../lib/bluesense-superhub/logger');
 const fs = require('fs');
 const os = require('os');
@@ -72,8 +73,8 @@ describe('Controller', function() {
 
       it('should stop wifi scan if any in progress', function() {
         this.busMock.expects('publish').once().withArgs(new Message(Message.type.wifiJoined, this.networkFixture));
-        this.controller.startWiFiScan();
 
+        this.busMock.object.emit(Message.type.startWiFiScan);
         this.wirelessMock.object.emit(Wireless.events.join, this.networkFixture);
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
 
@@ -93,9 +94,9 @@ describe('Controller', function() {
 
     context('appear', function() {
       it('should contain any wifis that have been found', function() {
-        this.controller.startWiFiScan();
         this.busMock.expects('publish').withArgs(new Message(Message.type.wifiUpdated, [this.networkFixture]));
 
+        this.busMock.object.emit(Message.type.startWiFiScan);
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
 
         this.busMock.verify();
@@ -104,8 +105,8 @@ describe('Controller', function() {
 
     context('vanish', function() {
       beforeEach(function() {
-        this.controller.startWiFiScan();
         this.busMock.expects('publish').withArgs(new Message(Message.type.wifiUpdated, [this.networkFixture]));
+        this.busMock.object.emit(Message.type.startWiFiScan);
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
       });
 
@@ -120,11 +121,11 @@ describe('Controller', function() {
 
     context('change - one of the wifi connections details have changed', function() {
       it('should update the wifi networks list in case of a change event', function() {
-        this.controller.startWiFiScan();
         var anotherNetwork = new Network('A5-C6-1E-7C-32-3D', 'New network', 11, 123, 'Master', false, false, true);
 
         this.busMock.expects('publish').thrice();
 
+        this.busMock.object.emit(Message.type.startWiFiScan);
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
         this.wirelessMock.object.emit(Wireless.events.appear, anotherNetwork);
 
@@ -145,242 +146,207 @@ describe('Controller', function() {
   });
 
   describe('message broker event handling', function() {
-    // it('should publish the current application info', function() {
-    //   var hostname = 'hostname';
-    //   var expectedNetworks = {
-    //     eth0: '192.168.1.100',
-    //     eth01: '192.168.1.101',
-    //     wlan0: '192.168.1.51'
-    //   };
-    //   var version = '0.0.1';
-    //   var message = new InfoMessage(version, hostname, expectedNetworks);
-    //
-    //   this.machineMock.expects('softwareVersion').returns(version);
-    //   this.osMock.expects('networkInterfaces').returns(this.networkInterfacesFixture);
-    //   this.osMock.expects('hostname').returns(hostname);
-    //   this.busMock.expects('publish').withArgs(message);
-    //
-    //   this.busMock.object.emit('connect');
-    //
-    //   this.machineMock.verify();
-    //   this.osMock.verify();
-    //   this.busMock.verify();
-    // });
+    context('ready', function() {
+      it('should start tracking wifi connections', function() {
+        this.wirelessMock.expects('start').once();
 
-    context('message', function() {
-      context(Message.type.connectWiFi, function() {
-        it('should call joinNetwork()', function() {
-          this.sandbox.stub(this.controller, 'joinNetwork');
+        this.busMock.object.emit('ready');
 
-          this.busMock.object.emit('message', new Message(Message.type.connectWiFi, {
-            ssid: 'test',
-            passphrase: 'test'
-          }));
-
-          this.controller.joinNetwork.should.have.been.calledOnce;
-        });
+        this.wirelessMock.verify();
       });
 
-      context(Message.type.startWiFiScan, function() {
-        it('should return #startWiFiScan()', function() {
-          this.sandbox.stub(this.controller, 'startWiFiScan');
+      it('should handle the event only once, ignoring any further fluctuations', function() {
+        this.wirelessMock.expects('start').once();
 
-          this.busMock.object.emit('message', new Message(Message.type.startWiFiScan));
+        this.busMock.object.emit('ready');
+        this.busMock.object.emit('ready');
 
-          this.controller.startWiFiScan.should.have.been.calledOnce;
-        });
-      });
-
-      context(Message.type.stopWiFiScan, function() {
-        it('should return #stopWiFiScan()', function() {
-          this.sandbox.stub(this.controller, 'stopWiFiScan');
-
-          this.busMock.object.emit('message', new Message(Message.type.stopWiFiScan));
-
-          this.controller.stopWiFiScan.should.have.been.calledOnce;
-        });
-      });
-
-      // context(Message.type.connectedToPlatform, function() {
-      //   it('should start the wifi connection tracking', function() {
-      //     this.wirelessMock.expects('start');
-      //
-      //     this.busMock.object.emit('message', new Message(Message.type.connectedToPlatform));
-      //
-      //     this.wirelessMock.verify();
-      //   });
-      // });
-
-      context(Message.type.disconnectedFromPlatform, function() {
-        it('should stop the wifi connection tracking', function() {
-          this.wirelessMock.expects('stop');
-
-          this.busMock.object.emit('message', new Message(Message.type.disconnectedFromPlatform));
-
-          this.wirelessMock.verify();
-        });
-      });
-
-      // context(Message.type.executeCommand, function() {
-      //   it('should stop the wifi connection tracking', function() {
-      //     this.execMock.expects('stop');
-      //
-      //     this.busMock.object.emit('message', new Message(Message.type.executeCommand, {command: 'ls'}));
-      //
-      //     this.wirelessMock.verify();
-      //   });
-      // });
-    });
-  });
-
-  describe('#startWiFiScan()', function() {
-    context('no scan running', function() {
-      it('should scan for wifi networks for 5 minutes and then stop', function() {
-        this.busMock.expects('publish').thrice().withArgs(sinon.match(message => message.type === Message.type.wifiUpdated));
-        this.controller.startWiFiScan();
-
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-        this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
-        this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
-
-        this.sandbox.clock.tick(this.Controller.wifiScanTimeout * 1000);
-
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-        this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
-        this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
-
-        this.busMock.verify();
+        this.wirelessMock.verify();
       });
     });
 
-    context('scan in progress', function() {
-      it('should run the current scan for another 5 minutes and then stop', function() {
-        this.busMock.expects('publish').withArgs(sinon.match(message => message.type === Message.type.wifiUpdated));
-        this.controller.startWiFiScan();
+    context(Message.type.connectWiFi, function() {
+      context('error handling', function() {
+        it('should throw an error if the requested network hasn\'t been discovered yet', function() {
+          var message = new ConnectWifiMessage(this.networkFixture.ssid, 'not important');
 
-        this.sandbox.clock.tick((this.Controller.wifiScanTimeout - 1) * 1000);
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+          this.wirelessMock.expects('join').never();
+          this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, Wireless.errors.unknownNetwork));
 
-        this.controller.startWiFiScan();
-        this.sandbox.clock.tick(this.Controller.wifiScanTimeout * 1000);
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+          this.busMock.object.emit(message.type, message.data);
 
-        this.busMock.verify();
-      });
-    });
-
-    context('start scan after a timeout', function() {
-      it('should run a new scan', function() {
-        this.busMock.expects('publish').twice().withArgs(sinon.match(message => message.type === Message.type.wifiUpdated));
-        this.controller.startWiFiScan();
-
-        this.sandbox.clock.tick((this.Controller.wifiScanTimeout - 1) * 1000);
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-        this.sandbox.clock.tick(this.Controller.wifiScanTimeout * 10 * 1000);
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-        this.controller.startWiFiScan();
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-
-        this.busMock.verify();
-      });
-    });
-  });
-
-  describe('#stopWiFiScan()', function() {
-    it('should stop sending wifi scan results to the backend', function() {
-      this.busMock.expects('publish').thrice().withArgs(sinon.match(message => message.type === Message.type.wifiUpdated));
-      this.controller.startWiFiScan();
-
-      this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-      this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
-      this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
-
-      this.controller.stopWiFiScan();
-
-      this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-      this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
-      this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
-
-      this.busMock.verify();
-    });
-  });
-
-  describe('#joinNetwork(ssid, passphrase)', function() {
-    context('error handling', function() {
-      it('should throw an error if the requested network hasnt been discovered yet', function() {
-        this.wirelessMock.expects('join').never();
-        this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, Wireless.errors.unknownNetwork));
-
-        return this.controller.joinNetwork(this.networkFixture.ssid, 'short').should.be.rejectedWith(Error).then(() => {
           this.busMock.verify();
           this.wirelessMock.verify();
         });
       });
-    });
 
-    context('encrypted network', function() {
-      beforeEach(function() {
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-      });
-
-      describe('passphrase validation', function() {
-        context('WEP 64 bit', function() {
-          //TODO: 5 chars
+      context('encrypted network', function() {
+        beforeEach(function() {
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
         });
 
-        context('WEP 128 bit', function() {
-          //TODO: 13 chars
-        });
+        describe('passphrase validation', function() {
+          context('WEP 64 bit', function() {
+            //TODO: 5 chars
+          });
 
-        context('WPA and WPA2', function() {
-          it('should throw and send an error if the passphrase is shorter than 8 characters', function() {
-            this.wirelessMock.expects('join').never();
-            this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, Wireless.errors.passphraseLength));
+          context('WEP 128 bit', function() {
+            //TODO: 13 chars
+          });
 
-            return this.controller.joinNetwork(this.networkFixture.ssid, 'short').should.be.rejectedWith(Error).then(() => {
+          context('WPA and WPA2', function() {
+            it('should throw and send an error if the passphrase is shorter than 8 characters', function() {
+              var message = new ConnectWifiMessage(this.networkFixture.ssid, 'short');
+
+              this.wirelessMock.expects('join').never();
+              this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, Wireless.errors.passphraseLength));
+
+              this.busMock.object.emit(message.type, message.data);
+
+              this.busMock.verify();
+              this.wirelessMock.verify();
+            });
+
+            it('should throw and send an error if the passphrase is longer than 63 characters', function() {
+              var message = new ConnectWifiMessage(this.networkFixture.ssid, new Array(65).join('a'));
+
+              this.wirelessMock.expects('join').never();
+              this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, Wireless.errors.passphraseLength));
+
+              this.busMock.object.emit(message.type, message.data);
+
               this.busMock.verify();
               this.wirelessMock.verify();
             });
           });
+        });
 
-          it('should throw and send an error if the passphrase is longer than 63 characters', function() {
-            this.wirelessMock.expects('join').never();
-            this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, Wireless.errors.passphraseLength));
+        it('should invoke the join method on the wireless adapter with the provided ssid and passphrase', function() {
+          var message = new ConnectWifiMessage(this.networkFixture.ssid, 'passphrase');
 
-            return this.controller.joinNetwork(this.networkFixture.ssid, new Array(65).join('a')).should.be.rejectedWith(Error).then(() => {
-              this.busMock.verify();
-              this.wirelessMock.verify();
-            });
-          });
+          this.wirelessMock.expects('join')
+            .once()
+            .returns(Promise.resolve())
+            .withArgs(this.networkFixture, 'passphrase');
+
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+          this.busMock.object.emit(message.type, message.data);
+
+          this.wirelessMock.verify();
         });
       });
 
-      it('should invoke the join method on the wireless adapter with the provided ssid and passphrase', function() {
-        this.wirelessMock.expects('join')
-          .once()
-          .returns(Promise.resolve())
-          .withArgs(this.networkFixture, 'passphrase');
+      context('open network', function() {
+        it('should invoke the wireless join method with the requested network', function() {
+          var message = new ConnectWifiMessage(this.openNetworkFixture.ssid, 'not important');
 
-        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+          this.wirelessMock.expects('join')
+            .once()
+            .returns(Promise.resolve())
+            .withArgs(this.openNetworkFixture, 'not important');
 
-        return this.controller.joinNetwork(this.networkFixture.ssid, 'passphrase').should.be.fulfilled.then(() => {
+          this.wirelessMock.object.emit(Wireless.events.appear, this.openNetworkFixture);
+          this.busMock.object.emit(message.type, message.data);
+
           this.wirelessMock.verify();
         });
       });
     });
 
-    context('open network', function() {
-      it('should invoke the wireless join method with the requested network', function() {
-        this.wirelessMock.expects('join')
-          .once()
-          .returns(Promise.resolve())
-          .withArgs(this.openNetworkFixture, 'not important');
+    context(Message.type.startWiFiScan, function() {
+      context('no scan running', function() {
+        it('should scan for wifi networks for 5 minutes and then stop', function() {
+          this.busMock.expects('publish').thrice().withArgs(sinon.match(message => message.type === Message.type.wifiUpdated));
 
-        this.wirelessMock.object.emit(Wireless.events.appear, this.openNetworkFixture);
+          this.busMock.object.emit(Message.type.startWiFiScan);
 
-        return this.controller.joinNetwork(this.openNetworkFixture.ssid, 'not important').should.be.fulfilled.then(() => {
-          this.wirelessMock.verify();
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+          this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
+          this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
+
+          this.sandbox.clock.tick(this.Controller.wifiScanTimeout * 1000);
+
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+          this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
+          this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
+
+          this.busMock.verify();
         });
+      });
+
+      context('scan in progress', function() {
+        it('should run the current scan for another 5 minutes and then stop', function() {
+          this.busMock.expects('publish').withArgs(sinon.match(message => message.type === Message.type.wifiUpdated));
+          this.busMock.object.emit(Message.type.startWiFiScan);
+
+          this.sandbox.clock.tick((this.Controller.wifiScanTimeout - 1) * 1000);
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+
+          this.busMock.object.emit(Message.type.startWiFiScan);
+          this.sandbox.clock.tick(this.Controller.wifiScanTimeout * 1000);
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+
+          this.busMock.verify();
+        });
+      });
+
+      context('start scan after a timeout', function() {
+        it('should run a new scan', function() {
+          this.busMock.expects('publish').twice().withArgs(sinon.match(message => message.type === Message.type.wifiUpdated));
+          this.busMock.object.emit(Message.type.startWiFiScan);
+
+          this.sandbox.clock.tick((this.Controller.wifiScanTimeout - 1) * 1000);
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+          this.sandbox.clock.tick(this.Controller.wifiScanTimeout * 10 * 1000);
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+          this.busMock.object.emit(Message.type.startWiFiScan);
+          this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+
+          this.busMock.verify();
+        });
+      });
+    });
+
+    context(Message.type.stopWiFiScan, function() {
+      it('should stop sending wifi scan results to the backend', function() {
+        this.busMock.expects('publish').thrice().withArgs(sinon.match(message => message.type === Message.type.wifiUpdated));
+        this.busMock.object.emit(Message.type.startWiFiScan);
+
+        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+        this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
+        this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
+
+        this.busMock.object.emit(Message.type.stopWiFiScan);
+
+        this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
+        this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
+        this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
+
+        this.busMock.verify();
+      });
+    });
+
+    context(Message.type.connectedToPlatform, function() {
+      it('should publish the current application info', function() {
+        var hostname = 'hostname';
+        var expectedNetworks = {
+          eth0: '192.168.1.100',
+          eth01: '192.168.1.101',
+          wlan0: '192.168.1.51'
+        };
+        var version = '0.0.1';
+        var message = new InfoMessage(version, hostname, expectedNetworks);
+
+        this.machineMock.expects('softwareVersion').returns(version);
+        this.osMock.expects('networkInterfaces').returns(this.networkInterfacesFixture);
+        this.osMock.expects('hostname').returns(hostname);
+        this.busMock.expects('publish').withArgs(message);
+
+        this.busMock.object.emit(Message.type.connectedToPlatform);
+
+        this.machineMock.verify();
+        this.osMock.verify();
+        this.busMock.verify();
       });
     });
   });

@@ -1,16 +1,22 @@
+const Monitor = require('../../lib/bluesense-superhub/monitor');
+const Controller = require('../../lib/bluesense-superhub/controller');
 const Machine = require('../../lib/bluesense-superhub/machine');
 
 describe('Server', function() {
   beforeEach(function() {
     this.sandbox = sinon.sandbox.create();
 
-    this.createSpy = this.sandbox.spy();
+    this.monitorMock = this.sandbox.mock(Monitor.prototype);
+    this.controllerMock = this.sandbox.mock(Controller.prototype);
     this.machineMock = this.sandbox.mock(Machine);
 
     this.Server = proxyquire('../../lib/bluesense-superhub/server', {
       './machine': this.machineMock.object,
       './monitor': {
-        create: () => this.createSpy()
+        create: () => this.monitorMock.object
+      },
+      './controller': {
+        create: () => this.controllerMock.object
       }
     });
 
@@ -27,6 +33,8 @@ describe('Server', function() {
         this.machineMock.expects('role').returns('something else');
 
         this.server.start.bind(this.server).should.throw(Error);
+
+        this.machineMock.verify();
       });
     });
 
@@ -36,7 +44,17 @@ describe('Server', function() {
 
         this.server.start();
 
-        this.createSpy.should.have.been.calledOnce;
+        this.machineMock.verify();
+      });
+    });
+
+    context('machine role is controller', function() {
+      it('should create a new instance of the Controller component', function() {
+        this.machineMock.expects('role').returns('Controller');
+
+        this.server.start();
+
+        this.machineMock.verify();
       });
     });
   });
