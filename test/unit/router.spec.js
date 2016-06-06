@@ -11,7 +11,7 @@ describe('Router', function() {
 
     this.busMock = this.sandbox.mock(Bus.prototype);
     this.webSocketMock = this.sandbox.mock(WebSocket.prototype);
-    this.loggerStub = this.sandbox.mock(Logger.prototype);
+    this.loggerStub = sinon.createStubInstance(Logger);
     this.configMock = this.sandbox.mock(Config);
 
     this.Router = proxyquire('../../lib/bluesense-superhub/router', {
@@ -21,7 +21,9 @@ describe('Router', function() {
       './messaging/websocket': {
         connect: () => this.webSocketMock.object
       },
-      './logger': this.loggerStub.object,
+      './logger': {
+        getInstance: () => this.loggerStub
+      },
       './config': this.configMock.object
     });
 
