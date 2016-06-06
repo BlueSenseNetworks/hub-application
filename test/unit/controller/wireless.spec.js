@@ -1,15 +1,13 @@
-const Network = require('../../lib/bluesense-superhub/models/network');
-const Bus = require('../../lib/bluesense-superhub/messaging/bus');
-const Wireless = require('../../lib/bluesense-superhub/wireless');
-const Message = require('../../lib/bluesense-superhub/models/message');
-const InfoMessage = require('../../lib/bluesense-superhub/models/messages/info');
-const ConnectWifiMessage = require('../../lib/bluesense-superhub/models/messages/connect-wifi');
-const Logger = require('../../lib/bluesense-superhub/logger');
+const Network = require('../../../lib/bluesense-superhub/models/network');
+const Bus = require('../../../lib/bluesense-superhub/messaging/bus');
+const Wireless = require('../../../lib/bluesense-superhub/wireless');
+const Message = require('../../../lib/bluesense-superhub/models/message');
+const ConnectWifiMessage = require('../../../lib/bluesense-superhub/models/messages/connect-wifi');
+const Logger = require('../../../lib/bluesense-superhub/logger');
 const fs = require('fs');
-const os = require('os');
-const Machine = require('../../lib/bluesense-superhub/machine');
+const Machine = require('../../../lib/bluesense-superhub/machine');
 
-describe('Controller', function() {
+describe('Wireless', function() {
   before(function() {
     this.networkFixture = new Network('F8-16-54-7C-32-3D', 'test', 11, 123, 'Master', false, false, true);
     this.openNetworkFixture = new Network('FC-AA-9F-E5-66-33', 'Open network', 51, 92, 'Master', false, false, false);
@@ -23,21 +21,19 @@ describe('Controller', function() {
     this.wirelessMock = this.sandbox.mock(Wireless.prototype);
     this.busMock = this.sandbox.mock(Bus.prototype);
     this.loggerStub = sinon.createStubInstance(Logger);
-    this.osMock = this.sandbox.mock(os);
     this.machineMock = this.sandbox.mock(Machine);
 
-    this.Controller = proxyquire('../../lib/bluesense-superhub/controller', {
-      './messaging/bus': {
+    this.Controller = proxyquire('../../lib/bluesense-superhub/controller/wireless', {
+      '../messaging/bus': {
         create: () => this.busMock.object
       },
-      './wireless': {
+      '../wireless': {
         create: () => this.wirelessMock.object
       },
-      './logger': {
+      '../logger': {
         getInstance: () => this.loggerStub
       },
-      'os': this.osMock.object,
-      './machine': this.machineMock.object
+      '../machine': this.machineMock.object
     });
 
     this.controller = this.Controller.create();
@@ -327,25 +323,25 @@ describe('Controller', function() {
     });
 
     context(Message.type.connectedToPlatform, function() {
-      it('should publish the current application info', function() {
-        var hostname = 'hostname';
-        var expectedNetworks = {
-          eth0: '192.168.1.100',
-          eth01: '192.168.1.101',
-          wlan0: '192.168.1.51'
-        };
-        var version = '0.0.1';
-        var message = new InfoMessage(version, hostname, expectedNetworks);
+      it('should emit a wifiJoined message if the device is connected to a wifiNetwork', function() {
+        this.wirelessMock.object.connected = true;
+        this.wirelessMock.object.network = this.networkFixture;
 
-        this.machineMock.expects('softwareVersion').returns(version);
-        this.osMock.expects('networkInterfaces').returns(this.networkInterfacesFixture);
-        this.osMock.expects('hostname').returns(hostname);
-        this.busMock.expects('publish').withArgs(message);
+        this.busMock.expects('publish').withArgs(sinon.match(message => message.type === Message.type.wifiJoined));
 
         this.busMock.object.emit(Message.type.connectedToPlatform);
 
-        this.machineMock.verify();
-        this.osMock.verify();
+        this.busMock.verify();
+      });
+
+      it('should emit a wifiJoined message if the device is not connected to a wifiNetwork', function() {
+        this.wirelessMock.object.connected = false;
+        this.wirelessMock.object.network = null;
+
+        this.busMock.expects('publish').withArgs(sinon.match(message => message.type === Message.type.wifiLeft));
+
+        this.busMock.object.emit(Message.type.connectedToPlatform);
+
         this.busMock.verify();
       });
     });
