@@ -45,6 +45,18 @@ describe('Monitor', function() {
 
         this.bleScannerMock.verify();
       });
+
+      it('should not start the scan if the scan was explicitly stopped', function() {
+        this.bleScannerMock.expects('startScan');
+        this.bleScannerMock.expects('stopScan').twice();
+
+        this.busMock.object.emit(Message.type.connectedToPlatform);
+        this.busMock.object.emit(Message.type.stopBleScan);
+        this.busMock.object.emit(Message.type.disconnectedFromPlatform);
+        this.busMock.object.emit(Message.type.connectedToPlatform);
+
+        this.bleScannerMock.verify();
+      });
     });
 
     context(Message.type.startBleScan, function() {
