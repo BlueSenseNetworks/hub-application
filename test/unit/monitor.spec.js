@@ -2,10 +2,14 @@ const BleScanner = require('../../lib/bluesense-superhub/ble-scanner');
 const Bus = require('../../lib/bluesense-superhub/messaging/bus');
 const Message = require('../../lib/bluesense-superhub/models/message');
 const Logger = require('../../lib/bluesense-superhub/logger');
+const Device = require('../../lib/bluesense-superhub/models/device');
+const ExtendedDeviceInfoMessage = require('../../lib/bluesense-superhub/models/messages/device-detected-extended');
+const BasicDeviceInfoMessage = require('../../lib/bluesense-superhub/models/messages/device-detected-basic');
 
 describe('Monitor', function() {
   beforeEach(function() {
     this.sandbox = sinon.sandbox.create();
+    this.sandbox.useFakeTimers();
 
     this.bleScannerMock = this.sandbox.mock(BleScanner.prototype);
     this.busMock = this.sandbox.mock(Bus.prototype);
@@ -33,20 +37,11 @@ describe('Monitor', function() {
   });
 
   describe('message broker event handling', function() {
-    context('ready', function() {
+    context(Message.type.connectedToPlatform, function() {
       it('should start scanning for BLE devices', function() {
-        this.bleScannerMock.expects('startScan').once();
+        this.bleScannerMock.expects('startScan');
 
-        this.busMock.object.emit('ready');
-
-        this.bleScannerMock.verify();
-      });
-
-      it('should handle the event only once, ignoring any further fluctuations', function() {
-        this.bleScannerMock.expects('startScan').once();
-
-        this.busMock.object.emit('ready');
-        this.busMock.object.emit('ready');
+        this.busMock.object.emit(Message.type.connectedToPlatform);
 
         this.bleScannerMock.verify();
       });
@@ -54,7 +49,7 @@ describe('Monitor', function() {
 
     context(Message.type.startBleScan, function() {
       it('should start scanning for BLE devices', function() {
-        this.bleScannerMock.expects('startScan').once();
+        this.bleScannerMock.expects('startScan');
 
         this.busMock.object.emit(Message.type.startBleScan);
 
@@ -62,30 +57,69 @@ describe('Monitor', function() {
       });
     });
 
-    context(Message.type.stopBleScan, function() {
-      it('should stop the BLE scan', function() {
-        this.bleScannerMock.expects('stopScan').once();
+    [Message.type.disconnectedFromPlatform, Message.type.stopBleScan].forEach(function(message) {
+      context(message, function() {
+        it('should stop the BLE scan', function() {
+          this.bleScannerMock.expects('stopScan');
 
-        this.busMock.object.emit(Message.type.stopBleScan);
+          this.busMock.object.emit(message);
 
-        this.bleScannerMock.verify();
+          this.bleScannerMock.verify();
+        });
+
+        it('should invalidate the device cache', function() {
+          var device = new Device('uuid', 'rssi', 'BlueBar');
+
+          this.busMock.expects('publish').twice().withArgs(new ExtendedDeviceInfoMessage(device));
+          this.bleScannerMock.expects('startScan');
+          this.bleScannerMock.expects('stopScan');
+
+          this.busMock.object.emit(Message.type.startBleScan);
+          this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, device);
+          this.busMock.object.emit(message);
+          this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, device);
+
+
+          this.bleScannerMock.verify();
+        });
       });
     });
   });
 
   describe('BLE scanner event handling', function() {
     context('deviceDiscovered', function() {
-      it('should send the device info to the message broker', function() {
-        var device = {
-          uuid: 'uuid',
-          rssi: 'rssi'
-        };
+      beforeEach(function() {
+        this.device = new Device('uuid', 'rssi', 'BlueBar');
+      });
 
-        this.busMock.expects('publish')
-          .once()
-          .withArgs(new Message(Message.type.deviceDetected, device));
+      it('should send the extended device info to the message broker on first discovery', function() {
+        this.busMock.expects('publish').withArgs(new ExtendedDeviceInfoMessage(this.device));
 
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, device);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+
+        this.busMock.verify();
+      });
+
+      it('should send the basic device info to the message broker on subsequent discovery', function() {
+        this.busMock.expects('publish').withArgs(new ExtendedDeviceInfoMessage(this.device));
+        this.busMock.expects('publish').withArgs(new BasicDeviceInfoMessage(this.device));
+
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.sandbox.clock.tick(this.Monitor.deviceInfoCacheTimeoutSeconds * 1000 - 1);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+
+        this.busMock.verify();
+      });
+
+      it('should send the extended device info again after a timeout', function() {
+        this.busMock.expects('publish').twice().withArgs(new ExtendedDeviceInfoMessage(this.device));
+        this.busMock.expects('publish').withArgs(new BasicDeviceInfoMessage(this.device));
+
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.sandbox.clock.tick(this.Monitor.deviceInfoCacheTimeoutSeconds * 1000 - 1);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.sandbox.clock.tick(this.Monitor.deviceInfoCacheTimeoutSeconds * 1000);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
 
         this.busMock.verify();
       });
