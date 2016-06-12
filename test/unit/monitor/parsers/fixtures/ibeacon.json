@@ -1,0 +1,10 @@
+{
+  "manufacturerData": "4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0",
+  "accuracy": 0.057627235723342156,
+  "major": 32800,
+  "measuredPower": -64,
+  "minor": 22453,
+  "proximity": "immediate",
+  "uuid": "a0b137303a9a11e3aa6e0800200c9a66",
+  "rssi": "-15"
+}
