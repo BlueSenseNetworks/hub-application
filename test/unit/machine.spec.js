@@ -106,7 +106,7 @@ describe('Machine', function() {
         .withArgs('/proc/cpuinfo', 'utf8')
         .returns(this.cpuInfoFixture);
 
-      this.Machine.serialNumber().should.equal('00000000d2eb3b9a');
+      this.Machine.serialNumber().should.equal('d2eb3b9a');
 
       this.fsMock.verify();
     });

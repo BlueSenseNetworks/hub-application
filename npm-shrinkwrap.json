@@ -3730,9 +3730,9 @@
       "resolved": "https://registry.npmjs.org/readdirp/-/readdirp-2.0.0.tgz"
     },
     "redis": {
-      "version": "2.6.1",
+      "version": "2.6.2",
       "from": "redis@latest",
-      "resolved": "https://registry.npmjs.org/redis/-/redis-2.6.1.tgz"
+      "resolved": "https://registry.npmjs.org/redis/-/redis-2.6.2.tgz"
     },
     "redis-commands": {
       "version": "1.2.0",

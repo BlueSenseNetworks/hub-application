@@ -5,5 +5,8 @@
   "globals": {
     "sinon": true,
     "proxyquire": true
+  },
+  "rules": {
+    "strict": 0
   }
 }
