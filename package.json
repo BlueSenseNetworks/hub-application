@@ -10,6 +10,7 @@
     "noble": "*",
     "pm2": "~1.1.0",
     "redis": "latest",
+    "serial-number": "^1.2.0",
     "string": "*",
     "winston": "*",
     "wireless": "*",
