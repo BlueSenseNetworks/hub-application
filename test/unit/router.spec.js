@@ -1,5 +1,6 @@
 const Bus = require('../../lib/bluesense-superhub/messaging/bus');
 const Message = require('../../lib/bluesense-superhub/models/message');
+const Device = require('../../lib/bluesense-superhub/models/device');
 const WebSocket = require('../../lib/bluesense-superhub/messaging/websocket');
 const Config = require('../../lib/bluesense-superhub/config');
 const Logger = require('../../lib/bluesense-superhub/logger');
@@ -38,7 +39,7 @@ describe('Router', function() {
 
   describe('message broker event handling', function() {
     beforeEach(function() {
-      this.message = new Message('DeviceDiscovered', {});
+      this.message = new Message('DeviceDiscovered', new Device('-15', 'BlueBar Beacon 5C313EF609EC', '4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0'));
     });
 
     it('should forward all messages from the bus to the backend via websockets', function() {
@@ -52,11 +53,11 @@ describe('Router', function() {
 
   describe('websocket message handling', function() {
     beforeEach(function() {
-      this.message = new Message('DeviceDiscovered', {});
+      this.message = new Message(Message.type.connectWiFi, {ssid: 'test'});
     });
 
     it('should forward all messages from the websocket connection to the bus', function() {
-      this.busMock.expects('publish').withArgs(new Message(this.message.type, this.message.data));
+      this.busMock.expects('publish').withArgs(this.message);
 
       this.webSocketMock.object.emit('message', this.message);
 
