@@ -31,9 +31,9 @@
   },
   "scripts": {
     "lint": "eslint lib/**/*.js test/**/*.js",
-    "test": "istanbul cover ./node_modules/.bin/_mocha -- --require test/support/bootstrap.js --recursive -R spec test/unit/**/*.js",
+    "test": "istanbul cover node_modules/mocha/bin/_mocha -- --require test/support/bootstrap.js --recursive -R spec test/unit",
     "test-integration": "mocha --require test/support/bootstrap.js -R spec test/integration/*.js",
-    "test:teamcity": "istanbul cover ./node_modules/.bin/_mocha -- --require test/support/bootstrap.js --recursive -R mocha-teamcity-reporter test/unit/**/*.js",
+    "test:teamcity": "istanbul cover node_modules/mocha/bin/_mocha -- --require test/support/bootstrap.js --recursive -R mocha-teamcity-reporter test/unit",
     "test-acceptance": "cucumberjs",
     "start": "pm2 start --no-daemon processes.json"
   },
