@@ -42,7 +42,13 @@ describe('Monitor', function() {
 
   describe('message broker event handling', function() {
     beforeEach(function() {
-      this.device = new Device('-15', 'BlueBar Beacon 5C313EF609EC', '4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0');
+      this.device = new Device({
+        rssi: -15,
+        advertisement: {
+          localName: 'BlueBar Beacon 5C313EF609EC',
+          manufacturerData: '4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0'
+        }
+      });
     });
 
     context(Message.type.connectedToPlatform, function() {
@@ -114,8 +120,21 @@ describe('Monitor', function() {
   describe('BLE scanner event handling', function() {
     context('deviceDiscovered', function() {
       beforeEach(function() {
-        this.device = new Device('-15', 'BlueBar Beacon 5C313EF609EC', '4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0');
-        this.anotherDevice = new Device('-5', 'Unknown vendor', '2c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0');
+        this.device = new Device({
+          rssi: -15,
+          advertisement: {
+            localName: 'BlueBar Beacon 5C313EF609EC',
+            manufacturerData: '4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0'
+          }
+        });
+        this.anotherDevice = new Device({
+          rssi: -5,
+          advertisement: {
+            localName: 'Unknown vendor',
+            manufacturerData: '2c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0'
+          }
+        });
+
       });
 
       it('should include device info if the device has been resolved', function() {

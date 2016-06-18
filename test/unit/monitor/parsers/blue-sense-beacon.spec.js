@@ -7,12 +7,18 @@ const fs = require('fs');
 describe('BlueSenseBeaconParser', function() {
   before(function() {
     this.expected = JSON.parse(fs.readFileSync('test/unit/monitor/parsers/fixtures/ibeacon.json', 'utf8'));
-    this.device = new Device('-15', 'BlueBar Beacon 5C313EF609EC', this.expected.manufacturerData);
+    this.device = new Device({
+      rssi: -15,
+      advertisement: {
+        localName: 'BlueBar Beacon 5C313EF609EC',
+        manufacturerData: this.expected.manufacturerData
+      }
+    });
   });
 
   describe('#parse(device)', function() {
     it('should return the BlueSenseBeacon model if the device is a blueSense beacon', function() {
-      var blueSenseBeacon = new BlueSenseBeacon({
+      let blueSenseBeacon = new BlueSenseBeacon({
         uuid: this.expected.uuid,
         major: this.expected.major,
         minor: this.expected.minor,
@@ -26,7 +32,13 @@ describe('BlueSenseBeaconParser', function() {
     });
 
     it('should return null if the the device is not a blueSense beacon', function() {
-      var device = new Device('-15', 'Some name', '2c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0');
+      let device = new Device({
+        rssi: -80,
+        advertisement: {
+          localName: 'Some name',
+          manufacturerData: this.expected.manufacturerData
+        }
+      });
 
       (BlueSenseBeaconParser.parse(device) === null).should.equal(true);
     });
