@@ -5,6 +5,7 @@ const Message = require('../../lib/bluesense-superhub/models/message');
 const Logger = require('../../lib/bluesense-superhub/logger');
 const Device = require('../../lib/bluesense-superhub/models/device');
 const DeviceDetectedMessage = require('../../lib/bluesense-superhub/models/messages/device-detected');
+const DeviceDetectedSlimMessage = require('../../lib/bluesense-superhub/models/messages/device-detected-slim');
 
 describe('Monitor', function() {
   beforeEach(function() {
@@ -204,7 +205,7 @@ describe('Monitor', function() {
 
         this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device, parserResults.slice(0)));
         this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.anotherDevice, parserResults.slice(1)));
-        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device));
+        this.busMock.expects('publish').withArgs(new DeviceDetectedSlimMessage(this.device));
 
         this.deviceResolverMock.expects('resolve')
           .twice()
@@ -230,7 +231,7 @@ describe('Monitor', function() {
         ];
 
         this.busMock.expects('publish').twice().withArgs(new DeviceDetectedMessage(this.device, parserResults));
-        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device));
+        this.busMock.expects('publish').withArgs(new DeviceDetectedSlimMessage(this.device));
         this.deviceResolverMock.expects('resolve').twice().returns(parserResults);
 
         this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
