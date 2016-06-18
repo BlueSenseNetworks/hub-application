@@ -101,34 +101,8 @@ describe('Machine', function() {
   });
 
   describe('#serialNumber()', function() {
-    it('should return the serial number based on the output of /proc/cpuinfo', function() {
-      this.fsMock.expects('readFileSync')
-        .withArgs('/proc/cpuinfo', 'utf8')
-        .returns(this.cpuInfoFixture);
-
-      this.Machine.serialNumber().should.equal('d2eb3b9a');
-
-      this.fsMock.verify();
-    });
-
-    it('should return the default serial number if /proc/cpuinfo doesn\'t exist', function() {
-      this.fsMock.expects('readFileSync')
-        .withArgs('/proc/cpuinfo', 'utf8')
-        .throws(new Error());
-
-      this.Machine.serialNumber().should.equal(this.Machine.defaultSerial);
-
-      this.fsMock.verify();
-    });
-
-    it('should return the default serial number if serial number regex doesn\'t match', function() {
-      this.fsMock.expects('readFileSync')
-        .withArgs('/proc/cpuinfo', 'utf8')
-        .returns(this.cpuInfoNoSerialFixture);
-
-      this.Machine.serialNumber().should.equal(this.Machine.defaultSerial);
-
-      this.fsMock.verify();
+    it('should return the serial number based on the output of serial-number module', function() {
+      // TODO
     });
   });
 
