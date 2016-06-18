@@ -4,7 +4,6 @@ const DeviceResolver = require('../../lib/bluesense-superhub/monitor/resolver');
 const Message = require('../../lib/bluesense-superhub/models/message');
 const Logger = require('../../lib/bluesense-superhub/logger');
 const Device = require('../../lib/bluesense-superhub/models/device');
-const BlueSenseBeacon = require('../../lib/bluesense-superhub/models/ble-devices/blue-sense-beacon');
 const DeviceDetectedMessage = require('../../lib/bluesense-superhub/models/messages/device-detected');
 
 describe('Monitor', function() {
@@ -89,10 +88,16 @@ describe('Monitor', function() {
         });
 
         it('should invalidate the device cache', function() {
-          this.busMock.expects('publish').twice().withArgs(new DeviceDetectedMessage(this.device));
+          var parserResults = [
+            {
+              type: 'iBeacon'
+            }
+          ];
+
+          this.busMock.expects('publish').twice().withArgs(new DeviceDetectedMessage(this.device, parserResults));
           this.bleScannerMock.expects('startScan');
           this.bleScannerMock.expects('stopScan');
-          this.deviceResolverMock.expects('resolve').twice().returns(this.device);
+          this.deviceResolverMock.expects('resolve').twice().returns(parserResults);
 
           this.busMock.object.emit(Message.type.startBleScan);
           this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
@@ -114,12 +119,14 @@ describe('Monitor', function() {
       });
 
       it('should include device info if the device has been resolved', function() {
-        var parserResults = new BlueSenseBeacon({
-          serial: 'test'
-        });
+        var parserResults = [
+          {
+            type: 'iBeacon'
+          }
+        ];
 
         this.deviceResolverMock.expects('resolve').returns(parserResults);
-        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(parserResults));
+        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device, parserResults));
 
         this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
 
@@ -131,7 +138,7 @@ describe('Monitor', function() {
         var parserResults = null;
 
         this.deviceResolverMock.expects('resolve').returns(parserResults);
-        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(parserResults));
+        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device, parserResults));
 
         this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
 
@@ -140,15 +147,24 @@ describe('Monitor', function() {
       });
 
       it('should send the extended device info to the message broker on first discovery', function() {
-        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device));
-        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.anotherDevice));
+        var parserResults = [
+          {
+            type: 'iBeacon'
+          },
+          {
+            type: 'blueSenseBeacon'
+          }
+        ];
+
+        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device, parserResults.slice(0)));
+        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.anotherDevice, parserResults.slice(1)));
 
         this.deviceResolverMock.expects('resolve')
           .twice()
           .onFirstCall()
-          .returns(this.device)
+          .returns(parserResults.slice(0))
           .onSecondCall()
-          .returns(this.anotherDevice);
+          .returns(parserResults.slice(1));
 
         this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
         this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.anotherDevice);
@@ -158,16 +174,25 @@ describe('Monitor', function() {
       });
 
       it('should send the basic device info to the message broker on subsequent discovery', function() {
-        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device));
-        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.anotherDevice));
+        var parserResults = [
+          {
+            type: 'iBeacon'
+          },
+          {
+            type: 'blueSenseBeacon'
+          }
+        ];
+
+        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device, parserResults.slice(0)));
+        this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.anotherDevice, parserResults.slice(1)));
         this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device));
 
         this.deviceResolverMock.expects('resolve')
           .twice()
           .onFirstCall()
-          .returns(this.device)
+          .returns(parserResults.slice(0))
           .onSecondCall()
-          .returns(this.anotherDevice);
+          .returns(parserResults.slice(1));
 
         this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
         this.sandbox.clock.tick(this.Monitor.deviceInfoCacheTimeoutSeconds * 1000 - 1);
@@ -179,9 +204,15 @@ describe('Monitor', function() {
       });
 
       it('should send the extended device info again after a timeout', function() {
-        this.busMock.expects('publish').twice().withArgs(new DeviceDetectedMessage(this.device));
+        var parserResults = [
+          {
+            type: 'iBeacon'
+          }
+        ];
+
+        this.busMock.expects('publish').twice().withArgs(new DeviceDetectedMessage(this.device, parserResults));
         this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device));
-        this.deviceResolverMock.expects('resolve').twice().returns(this.device);
+        this.deviceResolverMock.expects('resolve').twice().returns(parserResults);
 
         this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
         this.sandbox.clock.tick(this.Monitor.deviceInfoCacheTimeoutSeconds * 1000 - 1);

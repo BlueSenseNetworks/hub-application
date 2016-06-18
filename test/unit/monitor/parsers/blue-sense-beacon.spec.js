@@ -13,9 +13,6 @@ describe('BlueSenseBeaconParser', function() {
   describe('#parse(device)', function() {
     it('should return the BlueSenseBeacon model if the device is a blueSense beacon', function() {
       var blueSenseBeacon = new BlueSenseBeacon({
-        rssi: this.device.rssi,
-        name: this.device.name,
-        manufacturerData: this.expected.manufacturerData,
         uuid: this.expected.uuid,
         major: this.expected.major,
         minor: this.expected.minor,

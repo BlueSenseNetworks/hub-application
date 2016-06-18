@@ -35,42 +35,39 @@ describe('Resolver', function() {
 
   describe('#resolve(device)', function() {
     it('should return the combined output of all registered parsers', function() {
-      var devices = {
-        device1: Object.assign({}, this.device, {
+      var devices = [
+        {
           type: 'ibeacon',
-          prop: 'prop'
-        }),
-        device2: Object.assign({}, this.device, {
-          type: 'bluebar',
-          prop: 'prop'
-        })
-      };
+        },
+        {
+          type: 'blueSenseBeacon',
+        }
+      ];
 
-      this.parser1Mock.expects('parse').returns(devices.device1);
-      this.parser2Mock.expects('parse').returns(devices.device2);
+      this.parser1Mock.expects('parse').returns(devices[0]);
+      this.parser2Mock.expects('parse').returns(devices[1]);
 
-      this.resolver.resolve(this.device).should.deep.equal([devices.device1, devices.device2]);
+      this.resolver.resolve(this.device).should.deep.equal(devices);
     });
 
     it('should filter out any null values', function() {
-      var devices = {
-        device1: Object.assign({}, this.device, {
+      var devices = [
+        {
           type: 'ibeacon',
-          prop: 'prop'
-        })
-      };
+        }
+      ];
 
-      this.parser1Mock.expects('parse').returns(devices.device1);
+      this.parser1Mock.expects('parse').returns(devices[0]);
       this.parser2Mock.expects('parse').returns(null);
 
-      this.resolver.resolve(this.device).should.deep.equal([devices.device1]);
+      this.resolver.resolve(this.device).should.deep.equal(devices);
     });
 
-    it('should return the device if no parser can parse the device', function() {
+    it('should return an empty array if no parser can parse the device', function() {
       this.parser1Mock.expects('parse').returns(null);
       this.parser2Mock.expects('parse').returns(null);
 
-      this.resolver.resolve(this.device).should.equal(this.device);
+      this.resolver.resolve(this.device).should.deep.equal([]);
     });
   });
 });

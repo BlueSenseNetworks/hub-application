@@ -12,9 +12,6 @@ describe('IBeaconParser', function() {
   describe('#parse(device)', function() {
     it('should return the iBeacon model if the device is an iBeacon', function() {
       var iBeacon = new IBeacon({
-        rssi: this.device.rssi,
-        name: this.device.name,
-        manufacturerData: this.expected.manufacturerData,
         uuid: this.expected.uuid,
         major: this.expected.major,
         minor: this.expected.minor,
