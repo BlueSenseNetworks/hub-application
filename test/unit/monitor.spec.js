@@ -6,6 +6,7 @@ const Logger = require('../../lib/bluesense-superhub/logger');
 const Device = require('../../lib/bluesense-superhub/models/device');
 const DeviceDetectedMessage = require('../../lib/bluesense-superhub/models/messages/device-detected');
 const DeviceDetectedSlimMessage = require('../../lib/bluesense-superhub/models/messages/device-detected-slim');
+const DeviceDetectedEventParams = require('../../lib/bluesense-superhub/models/event-params/device-detected');
 
 describe('Monitor', function() {
   beforeEach(function() {
@@ -107,9 +108,9 @@ describe('Monitor', function() {
           this.deviceResolverMock.expects('resolve').twice().returns(parserResults);
 
           this.busMock.object.emit(Message.type.startBleScan);
-          this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+          this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
           this.busMock.object.emit(message);
-          this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+          this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
 
           this.deviceResolverMock.verify();
           this.bleScannerMock.verify();
@@ -148,7 +149,7 @@ describe('Monitor', function() {
         this.deviceResolverMock.expects('resolve').returns(parserResults);
         this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device, parserResults));
 
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
 
         this.deviceResolverMock.verify();
         this.busMock.verify();
@@ -160,7 +161,7 @@ describe('Monitor', function() {
         this.deviceResolverMock.expects('resolve').returns(parserResults);
         this.busMock.expects('publish').withArgs(new DeviceDetectedMessage(this.device, parserResults));
 
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
 
         this.deviceResolverMock.verify();
         this.busMock.verify();
@@ -186,8 +187,8 @@ describe('Monitor', function() {
           .onSecondCall()
           .returns(parserResults.slice(1));
 
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.anotherDevice);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.anotherDevice, null));
 
         this.deviceResolverMock.verify();
         this.busMock.verify();
@@ -214,10 +215,10 @@ describe('Monitor', function() {
           .onSecondCall()
           .returns(parserResults.slice(1));
 
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
         this.sandbox.clock.tick(this.Monitor.deviceInfoCacheTimeoutSeconds * 1000 - 1);
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.anotherDevice);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.anotherDevice, null));
 
         this.deviceResolverMock.verify();
         this.busMock.verify();
@@ -234,11 +235,11 @@ describe('Monitor', function() {
         this.busMock.expects('publish').withArgs(new DeviceDetectedSlimMessage(this.device));
         this.deviceResolverMock.expects('resolve').twice().returns(parserResults);
 
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
         this.sandbox.clock.tick(this.Monitor.deviceInfoCacheTimeoutSeconds * 1000 - 1);
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
         this.sandbox.clock.tick(this.Monitor.deviceInfoCacheTimeoutSeconds * 1000);
-        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, this.device);
+        this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
 
         this.deviceResolverMock.verify();
         this.busMock.verify();
