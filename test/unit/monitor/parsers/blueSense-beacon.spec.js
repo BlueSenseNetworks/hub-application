@@ -1,6 +1,6 @@
-const BlueSenseBeacon = require('../../../../lib/bluesense-superhub/models/ble-devices/blue-sense-beacon');
+const BlueSenseBeacon = require('../../../../lib/bluesense-superhub/models/ble-devices/blueSense-beacon');
 const Device = require('../../../../lib/bluesense-superhub/models/device');
-const BlueSenseBeaconParser = require('../../../../lib/bluesense-superhub/monitor/parsers/blue-sense-beacon');
+const BlueSenseBeaconParser = require('../../../../lib/bluesense-superhub/monitor/parsers/blueSense-beacon');
 
 const fs = require('fs');
 
