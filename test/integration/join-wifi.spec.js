@@ -1,6 +1,6 @@
-const machine = require('../../machine');
-const logger = require('../../logger');
-const Controller = require('../../controller-new');
+const machine = require('../../legacy/machine');
+const logger = require('../../legacy/logger');
+const Controller = require('../../legacy/controller-new');
 
 var child_process = require('child_process');
 const fs = require('fs');
@@ -34,10 +34,10 @@ describe('Connect to WiFi interface', function () {
     });
 
     //needs to be here as adapter returns an instance, so anything it relies on must be stubed out first
-    var adapter = require('../../signalr-adapter');
+    var adapter = require('../../legacy/signalr-adapter');
     //needs to be here as the cache is invalidated
     const Wireless = require('wireless');
-    const WirelessAdapter = require('../../wireless-adapter');
+    const WirelessAdapter = require('../../legacy/wireless-adapter');
 
     this.adapterStub = this.sandbox.stub(adapter);
 
