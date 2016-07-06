@@ -2,7 +2,7 @@ var async = require('async');
 var config = require('config');
 
 var bleScanner = require('./bleScanner');
-var logger = require('./logger').logger;
+var logger = require('./logger').getInstance();
 var Beacon = require('./beacon');
 var BlueBar = require('./bluebar');
 var machine = require('./machine');
@@ -17,16 +17,14 @@ function restart()
 
 function onDisconnect()
 {
-  beacon.removeListener('disconnect', onDisconnect);
   logger.info('disconnected!');
-  
   restart();
 }
 
 function dumpBeaconData(beacon){
   async.series([
     function(callback) {
-      beacon.on('disconnect', onDisconnect);
+      beacon.once('disconnect', onDisconnect);
 
       logger.info('connecting to ' + beacon.name);
       beacon.connect(callback);
@@ -94,8 +92,8 @@ function deviceDiscovered(device) {
   else
     return;
 
-//  if (device.serialNumber != '78A5043521ED')
-//    return;
+  if (device.serialNumber != '7CEC79DA4B65')
+    return;
 
   bleScanner.removeAllListeners('deviceDiscovered');
   bleScanner.stopScan();

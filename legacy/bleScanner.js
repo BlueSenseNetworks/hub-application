@@ -6,7 +6,7 @@ var util = require("util");
 
 var Beacon = require('./beacon');
 var BlueBar = require('./bluebar');
-var logger = require('./logger').logger;
+var logger = require('./logger').getInstance();
 var machine = require('./machine');
 
 var BleScanner = function (){
@@ -47,7 +47,7 @@ function discover(peripheral) {
     beacon: beaconData,
     isBlueBar: isBlueBar,
     serialNumber: blueBarBeaconSerialNumber,
-    peripheral: peripheral 
+    peripheral: peripheral
   };
 
   this.emit('deviceDiscovered', newDevice);
@@ -57,10 +57,10 @@ var adapterResetInterval;
 
 noble.on('stateChange', function(adapterState) {
   logger.info("BLE adapter state => " + adapterState);
-  
+
   if (adapterResetInterval)
     clearInterval(adapterResetInterval);
-  
+
   if (adapterState === 'poweredOn') {
     if (state === 'waitingForAdapter') {
       noble.startScanning([], true);
@@ -69,7 +69,7 @@ noble.on('stateChange', function(adapterState) {
   } else {
     updateState('waitingForAdapter');
     noble.stopScanning();
-    
+
     adapterResetInterval = setInterval(function(){
       bleScanner.resetAdapter();
     }, 30000);
@@ -80,7 +80,7 @@ noble.on('discover', discover.bind(bleScanner));
 
 BleScanner.prototype.startScan = function() {
   var adapterState = noble.state;
-    
+
   if (adapterState === 'poweredOn') {
     noble.startScanning([], true);
     updateState('Scanning');
@@ -88,7 +88,7 @@ BleScanner.prototype.startScan = function() {
     updateState('waitingForAdapter');
     this.resetAdapter();
   }
-  
+
   return adapterState;
 };
 
