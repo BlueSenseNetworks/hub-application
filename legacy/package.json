@@ -7,11 +7,12 @@
   "dependencies": {
     "bleacon": "*",
     "config": "*",
-    "noble": "*",
+    "noble": "^1.6.0",
     "pm2": "~1.1.0",
     "redis": "latest",
     "serial-number": "^1.2.0",
     "string": "*",
+    "wait.for": "^0.6.6",
     "winston": "*",
     "wireless": "*",
     "ws": "^1.1.0"
@@ -30,6 +31,7 @@
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0"
   },
+
   "scripts": {
     "lint": "eslint lib/**/*.js test/**/*.js",
     "test": "istanbul cover node_modules/mocha/bin/_mocha -- --require test/support/bootstrap.js --recursive -R spec test/unit",

@@ -17,8 +17,8 @@ function restart()
 
 function onDisconnect()
 {
-  logger.info('disconnected!');
-  restart();
+  logger.info('disconnected, restarting scan in 5sec!');
+  setTimeout(restart, 5000);
 }
 
 function dumpBeaconData(beacon){
@@ -92,8 +92,10 @@ function deviceDiscovered(device) {
   else
     return;
 
+/*
   if (device.serialNumber != '7CEC79DA4B65')
     return;
+*/
 
   bleScanner.removeAllListeners('deviceDiscovered');
   bleScanner.stopScan();

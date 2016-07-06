@@ -7,7 +7,7 @@
   "dependencies": {
     "bleacon": "*",
     "config": "*",
-    "noble": "*",
+    "noble": "^1.6.0",
     "pm2": "~1.1.0",
     "redis": "latest",
     "serial-number": "^1.2.0",
