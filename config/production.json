@@ -1,3 +1,3 @@
 {
-  "PlatformConnectionUrl": "wss://platform.proximitysense.com/signalR"
+  "PlatformConnectionUrl": "wss://api.proximitysense.com/v1/superhubClients"
 }
