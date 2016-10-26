@@ -7,7 +7,7 @@ const os = require('os');
 const fs = require('fs');
 const Machine = require('../../../lib/bluesense-superhub/machine');
 
-describe('BeaconSync', function() {
+describe.skip('BeaconSync', function() {
   before(function() {
   });
 
