@@ -44,7 +44,7 @@ describe.skip('BeaconSync', function() {
   });
 
   describe('message broker event handling', function() {
-    context(Message.type.syncBeacon, function() {
+    context(Message.route.syncBeacon, function() {
       it('should start syncing a beacon config on BeaconSync message', function() {
 
         return;
@@ -57,7 +57,7 @@ describe.skip('BeaconSync', function() {
 
         this.busMock.expects('publish').withArgs(message);
 
-        this.busMock.object.emit(Message.type.syncBeacon, message);
+        this.busMock.object.emit(Message.route.syncBeacon, message);
 
         this.busMock.verify();
       });

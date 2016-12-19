@@ -50,7 +50,7 @@ describe('Wireless', function() {
     context('error', function() {
       it('should send the error to the backend', function() {
         var errorString = 'Some error string';
-        this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, {errorMessage: errorString}));
+        this.busMock.expects('publish').withArgs(new Message(Message.route.wifiError, {errorMessage: errorString}));
 
         this.wirelessMock.object.emit(Wireless.events.error, errorString);
 
@@ -60,7 +60,7 @@ describe('Wireless', function() {
 
     context('join', function() {
       it('should send the network that we connected to to the backend', function() {
-        this.busMock.expects('publish').withArgs(new Message(Message.type.wifiJoined, {network: this.networkFixture}));
+        this.busMock.expects('publish').withArgs(new Message(Message.route.wifiJoined, {network: this.networkFixture}));
 
         this.wirelessMock.object.emit(Wireless.events.join, this.networkFixture);
 
@@ -68,9 +68,9 @@ describe('Wireless', function() {
       });
 
       it('should stop wifi scan if any in progress', function() {
-        this.busMock.expects('publish').once().withArgs(new Message(Message.type.wifiJoined, {network: this.networkFixture}));
+        this.busMock.expects('publish').once().withArgs(new Message(Message.route.wifiJoined, {network: this.networkFixture}));
 
-        this.busMock.object.emit(Message.type.startWiFiScan);
+        this.busMock.object.emit(Message.route.startWiFiScan);
         this.wirelessMock.object.emit(Wireless.events.join, this.networkFixture);
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
 
@@ -80,7 +80,7 @@ describe('Wireless', function() {
 
     context('leave', function() {
       it('should notify the backend that the wireless has disconnected', function() {
-        this.busMock.expects('publish').once().withArgs(new Message(Message.type.wifiLeft));
+        this.busMock.expects('publish').once().withArgs(new Message(Message.route.wifiLeft));
 
         this.wirelessMock.object.emit(Wireless.events.leave);
 
@@ -90,9 +90,9 @@ describe('Wireless', function() {
 
     context('appear', function() {
       it('should contain any wifis that have been found', function() {
-        this.busMock.expects('publish').withArgs(new Message(Message.type.wifiUpdated, {networks: [this.networkFixture]}));
+        this.busMock.expects('publish').withArgs(new Message(Message.route.wifiUpdated, {networks: [this.networkFixture]}));
 
-        this.busMock.object.emit(Message.type.startWiFiScan);
+        this.busMock.object.emit(Message.route.startWiFiScan);
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
 
         this.busMock.verify();
@@ -101,13 +101,13 @@ describe('Wireless', function() {
 
     context('vanish', function() {
       beforeEach(function() {
-        this.busMock.expects('publish').withArgs(new Message(Message.type.wifiUpdated, {networks: [this.networkFixture]}));
-        this.busMock.object.emit(Message.type.startWiFiScan);
+        this.busMock.expects('publish').withArgs(new Message(Message.route.wifiUpdated, {networks: [this.networkFixture]}));
+        this.busMock.object.emit(Message.route.startWiFiScan);
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
       });
 
       it('should remove any wifis that have been found but have vanished in the meantime', function() {
-        this.busMock.expects('publish').withArgs(new Message(Message.type.wifiUpdated, {networks: []}));
+        this.busMock.expects('publish').withArgs(new Message(Message.route.wifiUpdated, {networks: []}));
 
         this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
 
@@ -121,7 +121,7 @@ describe('Wireless', function() {
 
         this.busMock.expects('publish').thrice();
 
-        this.busMock.object.emit(Message.type.startWiFiScan);
+        this.busMock.object.emit(Message.route.startWiFiScan);
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
         this.wirelessMock.object.emit(Wireless.events.appear, anotherNetwork);
 
@@ -161,15 +161,15 @@ describe('Wireless', function() {
       });
     });
 
-    context(Message.type.connectWiFi, function() {
+    context(Message.route.connectWiFi, function() {
       context('error handling', function() {
         it('should throw an error if the requested network hasn\'t been discovered yet', function() {
           var message = new ConnectWifiMessage(this.networkFixture.ssid, 'test passphrase');
 
           this.wirelessMock.expects('join').never();
-          this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, {errorMessage: Wireless.errors.unknownNetwork}));
+          this.busMock.expects('publish').withArgs(new Message(Message.route.wifiError, {errorMessage: Wireless.errors.unknownNetwork}));
 
-          this.busMock.object.emit(message.messageType, message);
+          this.busMock.object.emit(message.route, message);
 
           this.busMock.verify();
           this.wirelessMock.verify();
@@ -195,9 +195,9 @@ describe('Wireless', function() {
               var message = new ConnectWifiMessage(this.networkFixture.ssid, 'short');
 
               this.wirelessMock.expects('join').never();
-              this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, {errorMessage: Wireless.errors.passphraseLength}));
+              this.busMock.expects('publish').withArgs(new Message(Message.route.wifiError, {errorMessage: Wireless.errors.passphraseLength}));
 
-              this.busMock.object.emit(message.messageType, message);
+              this.busMock.object.emit(message.route, message);
 
               this.busMock.verify();
               this.wirelessMock.verify();
@@ -207,9 +207,9 @@ describe('Wireless', function() {
               var message = new ConnectWifiMessage(this.networkFixture.ssid, new Array(65).join('a'));
 
               this.wirelessMock.expects('join').never();
-              this.busMock.expects('publish').withArgs(new Message(Message.type.wifiError, {errorMessage: Wireless.errors.passphraseLength}));
+              this.busMock.expects('publish').withArgs(new Message(Message.route.wifiError, {errorMessage: Wireless.errors.passphraseLength}));
 
-              this.busMock.object.emit(message.messageType, message);
+              this.busMock.object.emit(message.route, message);
 
               this.busMock.verify();
               this.wirelessMock.verify();
@@ -226,7 +226,7 @@ describe('Wireless', function() {
             .withArgs(this.networkFixture, 'passphrase');
 
           this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-          this.busMock.object.emit(message.messageType, message);
+          this.busMock.object.emit(message.route, message);
 
           this.wirelessMock.verify();
         });
@@ -242,19 +242,19 @@ describe('Wireless', function() {
             .withArgs(this.openNetworkFixture, 'not important');
 
           this.wirelessMock.object.emit(Wireless.events.appear, this.openNetworkFixture);
-          this.busMock.object.emit(message.messageType, message);
+          this.busMock.object.emit(message.route, message);
 
           this.wirelessMock.verify();
         });
       });
     });
 
-    context(Message.type.startWiFiScan, function() {
+    context(Message.route.startWiFiScan, function() {
       context('no scan running', function() {
         it('should scan for wifi networks for 5 minutes and then stop', function() {
-          this.busMock.expects('publish').thrice().withArgs(sinon.match(message => message.messageType === Message.type.wifiUpdated));
+          this.busMock.expects('publish').thrice().withArgs(sinon.match(message => message.route === Message.route.wifiUpdated));
 
-          this.busMock.object.emit(Message.type.startWiFiScan);
+          this.busMock.object.emit(Message.route.startWiFiScan);
 
           this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
           this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
@@ -272,13 +272,13 @@ describe('Wireless', function() {
 
       context('scan in progress', function() {
         it('should run the current scan for another 5 minutes and then stop', function() {
-          this.busMock.expects('publish').withArgs(sinon.match(message => message.messageType === Message.type.wifiUpdated));
-          this.busMock.object.emit(Message.type.startWiFiScan);
+          this.busMock.expects('publish').withArgs(sinon.match(message => message.route === Message.route.wifiUpdated));
+          this.busMock.object.emit(Message.route.startWiFiScan);
 
           this.sandbox.clock.tick((this.Controller.wifiScanTimeout - 1) * 1000);
           this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
 
-          this.busMock.object.emit(Message.type.startWiFiScan);
+          this.busMock.object.emit(Message.route.startWiFiScan);
           this.sandbox.clock.tick(this.Controller.wifiScanTimeout * 1000);
           this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
 
@@ -288,14 +288,14 @@ describe('Wireless', function() {
 
       context('start scan after a timeout', function() {
         it('should run a new scan', function() {
-          this.busMock.expects('publish').twice().withArgs(sinon.match(message => message.messageType === Message.type.wifiUpdated));
-          this.busMock.object.emit(Message.type.startWiFiScan);
+          this.busMock.expects('publish').twice().withArgs(sinon.match(message => message.route === Message.route.wifiUpdated));
+          this.busMock.object.emit(Message.route.startWiFiScan);
 
           this.sandbox.clock.tick((this.Controller.wifiScanTimeout - 1) * 1000);
           this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
           this.sandbox.clock.tick(this.Controller.wifiScanTimeout * 10 * 1000);
           this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-          this.busMock.object.emit(Message.type.startWiFiScan);
+          this.busMock.object.emit(Message.route.startWiFiScan);
           this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
 
           this.busMock.verify();
@@ -303,16 +303,16 @@ describe('Wireless', function() {
       });
     });
 
-    context(Message.type.stopWiFiScan, function() {
+    context(Message.route.stopWiFiScan, function() {
       it('should stop sending wifi scan results to the backend', function() {
-        this.busMock.expects('publish').thrice().withArgs(sinon.match(message => message.messageType === Message.type.wifiUpdated));
-        this.busMock.object.emit(Message.type.startWiFiScan);
+        this.busMock.expects('publish').thrice().withArgs(sinon.match(message => message.route === Message.route.wifiUpdated));
+        this.busMock.object.emit(Message.route.startWiFiScan);
 
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
         this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
         this.wirelessMock.object.emit(Wireless.events.vanish, this.networkFixture);
 
-        this.busMock.object.emit(Message.type.stopWiFiScan);
+        this.busMock.object.emit(Message.route.stopWiFiScan);
 
         this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
         this.wirelessMock.object.emit(Wireless.events.change, this.networkFixture);
@@ -322,14 +322,14 @@ describe('Wireless', function() {
       });
     });
 
-    context(Message.type.connectedToPlatform, function() {
+    context(Message.route.connectedToPlatform, function() {
       it('should emit a wifiJoined message if the device is connected to a wifiNetwork', function() {
         this.wirelessMock.object.connected = true;
         this.wirelessMock.object.network = this.networkFixture;
 
-        this.busMock.expects('publish').withArgs(sinon.match(message => message.messageType === Message.type.wifiJoined));
+        this.busMock.expects('publish').withArgs(sinon.match(message => message.route === Message.route.wifiJoined));
 
-        this.busMock.object.emit(Message.type.connectedToPlatform);
+        this.busMock.object.emit(Message.route.connectedToPlatform);
 
         this.busMock.verify();
       });
@@ -338,9 +338,9 @@ describe('Wireless', function() {
         this.wirelessMock.object.connected = false;
         this.wirelessMock.object.network = null;
 
-        this.busMock.expects('publish').withArgs(sinon.match(message => message.messageType === Message.type.wifiLeft));
+        this.busMock.expects('publish').withArgs(sinon.match(message => message.route === Message.route.wifiLeft));
 
-        this.busMock.object.emit(Message.type.connectedToPlatform);
+        this.busMock.object.emit(Message.route.connectedToPlatform);
 
         this.busMock.verify();
       });

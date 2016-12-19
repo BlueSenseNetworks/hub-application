@@ -53,11 +53,11 @@ describe('Monitor', function() {
       });
     });
 
-    context(Message.type.connectedToPlatform, function() {
+    context(Message.route.connectedToPlatform, function() {
       it('should start scanning for BLE devices', function() {
         this.bleScannerMock.expects('startScan');
 
-        this.busMock.object.emit(Message.type.connectedToPlatform);
+        this.busMock.object.emit(Message.route.connectedToPlatform);
 
         this.bleScannerMock.verify();
       });
@@ -66,26 +66,26 @@ describe('Monitor', function() {
         this.bleScannerMock.expects('startScan');
         this.bleScannerMock.expects('stopScan').twice();
 
-        this.busMock.object.emit(Message.type.connectedToPlatform);
-        this.busMock.object.emit(Message.type.stopBleScan);
-        this.busMock.object.emit(Message.type.disconnectedFromPlatform);
-        this.busMock.object.emit(Message.type.connectedToPlatform);
+        this.busMock.object.emit(Message.route.connectedToPlatform);
+        this.busMock.object.emit(Message.route.stopBleScan);
+        this.busMock.object.emit(Message.route.disconnectedFromPlatform);
+        this.busMock.object.emit(Message.route.connectedToPlatform);
 
         this.bleScannerMock.verify();
       });
     });
 
-    context(Message.type.startBleScan, function() {
+    context(Message.route.startBleScan, function() {
       it('should start scanning for BLE devices', function() {
         this.bleScannerMock.expects('startScan');
 
-        this.busMock.object.emit(Message.type.startBleScan);
+        this.busMock.object.emit(Message.route.startBleScan);
 
         this.bleScannerMock.verify();
       });
     });
 
-    [Message.type.disconnectedFromPlatform, Message.type.stopBleScan].forEach(function(message) {
+    [Message.route.disconnectedFromPlatform, Message.route.stopBleScan].forEach(function(message) {
       context(message, function() {
         it('should stop the BLE scan', function() {
           this.bleScannerMock.expects('stopScan');
@@ -107,7 +107,7 @@ describe('Monitor', function() {
           this.bleScannerMock.expects('stopScan');
           this.deviceResolverMock.expects('resolve').twice().returns(parserResults);
 
-          this.busMock.object.emit(Message.type.startBleScan);
+          this.busMock.object.emit(Message.route.startBleScan);
           this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));
           this.busMock.object.emit(message);
           this.bleScannerMock.object.emit(BleScanner.events.deviceDiscovered, new DeviceDetectedEventParams(this.device, null));

@@ -40,7 +40,7 @@ describe('InfoPublisher', function() {
   });
 
   describe('message broker event handling', function() {
-    context(Message.type.connectedToPlatform, function() {
+    context(Message.route.connectedToPlatform, function() {
       it('should publish the current application info every time we connect to the platform', function() {
         var hostname = 'hostname';
         var expectedNetworks = {
@@ -56,7 +56,7 @@ describe('InfoPublisher', function() {
         this.osMock.expects('hostname').returns(hostname);
         this.busMock.expects('publish').withArgs(message);
 
-        this.busMock.object.emit(Message.type.connectedToPlatform);
+        this.busMock.object.emit(Message.route.connectedToPlatform);
 
         this.machineMock.verify();
         this.osMock.verify();

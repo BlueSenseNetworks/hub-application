@@ -53,7 +53,7 @@ describe('Router', function() {
 
   describe('websocket message handling', function() {
     beforeEach(function() {
-      this.message = new Message(Message.type.connectWiFi, {ssid: 'test'});
+      this.message = new Message(Message.route.connectWiFi, {ssid: 'test'});
     });
 
     it('should forward all messages from the websocket connection to the bus', function() {
@@ -69,7 +69,7 @@ describe('Router', function() {
     describe('connect', function() {
       context('current state: disconnected', function() {
         it('should notify listeners that the platform is connected', function() {
-          this.busMock.expects('publish').withArgs(new Message(Message.type.connectedToPlatform));
+          this.busMock.expects('publish').withArgs(new Message(Message.route.connectedToPlatform));
 
           this.webSocketMock.object.emit('connect');
 
@@ -99,7 +99,7 @@ describe('Router', function() {
         });
 
         it('should notify listeners that the platform has disconnected', function() {
-          this.busMock.expects('publish').withArgs(new Message(Message.type.disconnectedFromPlatform));
+          this.busMock.expects('publish').withArgs(new Message(Message.route.disconnectedFromPlatform));
 
           this.webSocketMock.object.emit('disconnect');
 
