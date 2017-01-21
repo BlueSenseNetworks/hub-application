@@ -169,7 +169,7 @@ describe('Wireless', function() {
           this.wirelessMock.expects('join').never();
           this.busMock.expects('publish').withArgs(new Message(Message.route.wifiError, {errorMessage: Wireless.errors.unknownNetwork}));
 
-          this.busMock.object.emit(message.route, message);
+          this.busMock.object.emit(message.route, message.payload);
 
           this.busMock.verify();
           this.wirelessMock.verify();
@@ -197,7 +197,7 @@ describe('Wireless', function() {
               this.wirelessMock.expects('join').never();
               this.busMock.expects('publish').withArgs(new Message(Message.route.wifiError, {errorMessage: Wireless.errors.passphraseLength}));
 
-              this.busMock.object.emit(message.route, message);
+              this.busMock.object.emit(message.route, message.payload);
 
               this.busMock.verify();
               this.wirelessMock.verify();
@@ -209,7 +209,7 @@ describe('Wireless', function() {
               this.wirelessMock.expects('join').never();
               this.busMock.expects('publish').withArgs(new Message(Message.route.wifiError, {errorMessage: Wireless.errors.passphraseLength}));
 
-              this.busMock.object.emit(message.route, message);
+              this.busMock.object.emit(message.route, message.payload);
 
               this.busMock.verify();
               this.wirelessMock.verify();
@@ -226,7 +226,7 @@ describe('Wireless', function() {
             .withArgs(this.networkFixture, 'passphrase');
 
           this.wirelessMock.object.emit(Wireless.events.appear, this.networkFixture);
-          this.busMock.object.emit(message.route, message);
+          this.busMock.object.emit(message.route, message.payload);
 
           this.wirelessMock.verify();
         });
@@ -242,7 +242,7 @@ describe('Wireless', function() {
             .withArgs(this.openNetworkFixture, 'not important');
 
           this.wirelessMock.object.emit(Wireless.events.appear, this.openNetworkFixture);
-          this.busMock.object.emit(message.route, message);
+          this.busMock.object.emit(message.route, message.payload);
 
           this.wirelessMock.verify();
         });
