@@ -1,10 +1,17 @@
 const Device = require('../../../lib/bluesense-superhub/models/device');
-const fs = require('fs');
+const parserFixture = require('./parsers/fixtures/ibeacon.json');
 
 describe('Resolver', function() {
   before(function() {
-    this.expected = JSON.parse(fs.readFileSync('test/unit/monitor/parsers/fixtures/ibeacon.json', 'utf8'));
-    this.device = new Device('-15', 'Some name', this.expected.manufacturerData);
+    this.expected = parserFixture;
+    this.device = new Device({
+      id: 1,
+      rssi: -15,
+      advertisement: {
+        localName: 'BlueBar Beacon 5C313EF609EC',
+        manufacturerData: '4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0'
+      },
+    });
   });
 
   beforeEach(function() {

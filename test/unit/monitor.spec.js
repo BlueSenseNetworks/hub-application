@@ -123,6 +123,7 @@ describe('Monitor', function() {
     context('deviceDiscovered', function() {
       beforeEach(function() {
         this.device = new Device({
+          id: 1,
           rssi: -15,
           advertisement: {
             localName: 'BlueBar Beacon 5C313EF609EC',
@@ -130,6 +131,7 @@ describe('Monitor', function() {
           }
         });
         this.anotherDevice = new Device({
+          id: 2,
           rssi: -5,
           advertisement: {
             localName: 'Unknown vendor',

@@ -39,7 +39,16 @@ describe('Router', function() {
 
   describe('message broker event handling', function() {
     beforeEach(function() {
-      this.message = new Message('DeviceDiscovered', new Device('-15', 'BlueBar Beacon 5C313EF609EC', '4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0'));
+      const device = new Device({
+        id: 1,
+        rssi: -15,
+        advertisement: {
+          localName: 'BlueBar Beacon 5C313EF609EC',
+          manufacturerData: '4c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0'
+        },
+      });
+
+      this.message = new Message('DeviceDiscovered', device);
     });
 
     it('should forward all messages from the bus to the backend via websockets', function() {
