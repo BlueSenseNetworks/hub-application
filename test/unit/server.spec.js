@@ -1,26 +1,29 @@
-const Monitor = require('../../lib/bluesense-superhub/monitor');
-// const Controller = require('../../lib/bluesense-superhub/controller');
 const Machine = require('../../lib/bluesense-superhub/machine');
 
-describe.skip('Server', function() {
+describe('Server', function() {
   beforeEach(function() {
     this.sandbox = sinon.sandbox.create();
 
-    this.monitorMock = this.sandbox.mock(Monitor.prototype);
-    // this.controllerMock = this.sandbox.mock(Controller.prototype);
+    this.monitorCreateStub = this.sandbox.stub();
+    this.controllerCreateStub = this.sandbox.stub();
+    this.routerCreateStub = this.sandbox.stub();
     this.machineMock = this.sandbox.mock(Machine);
 
     this.Server = proxyquire('../../lib/bluesense-superhub/server', {
       './machine': this.machineMock.object,
       './monitor': {
-        create: () => this.monitorMock.object
+        create: this.monitorCreateStub,
+        '@noCallThru': true,
       },
-      // './controller': {
-      //   create: () => this.controllerMock.object
-      // }
+      './controller': {
+        create: this.controllerCreateStub,
+        '@noCallThru': true,
+      },
+      './router': {
+        create: this.routerCreateStub,
+        '@noCallThru': true,
+      }
     });
-
-    this.server = this.Server.create();
   });
 
   afterEach(function() {
@@ -32,7 +35,7 @@ describe.skip('Server', function() {
       it('should throw an error if the machine role is not recognized', function() {
         this.machineMock.expects('role').returns('something else');
 
-        this.server.start.bind(this.server).should.throw(Error);
+        should.Throw(() => this.Server.start());
 
         this.machineMock.verify();
       });
@@ -42,8 +45,11 @@ describe.skip('Server', function() {
       it('should create a new instance of the Monitor component', function() {
         this.machineMock.expects('role').returns('Monitor');
 
-        this.server.start();
+        this.Server.start();
 
+        this.monitorCreateStub.should.have.been.called;
+        this.controllerCreateStub.should.not.have.been.called;
+        this.routerCreateStub.should.not.have.been.called;
         this.machineMock.verify();
       });
     });
@@ -52,8 +58,24 @@ describe.skip('Server', function() {
       it('should create a new instance of the Controller component', function() {
         this.machineMock.expects('role').returns('Controller');
 
-        this.server.start();
+        this.Server.start();
 
+        this.monitorCreateStub.should.not.have.been.called;
+        this.controllerCreateStub.should.have.been.called;
+        this.routerCreateStub.should.not.have.been.called;
+        this.machineMock.verify();
+      });
+    });
+
+    context('machine role is router', function() {
+      it('should create a new instance of the Controller component', function() {
+        this.machineMock.expects('role').returns('Router');
+
+        this.Server.start();
+
+        this.monitorCreateStub.should.not.have.been.called;
+        this.controllerCreateStub.should.not.have.been.called;
+        this.routerCreateStub.should.have.been.called;
         this.machineMock.verify();
       });
     });

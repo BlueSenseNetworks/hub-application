@@ -17,7 +17,7 @@ describe('WirelessAdapter', function() {
     this.sandbox = sinon.sandbox.create();
     this.sandbox.useFakeTimers();
 
-    this.wirelessMock = this.sandbox.mock(Wireless.prototype);
+    this.wirelessMock = this.sandbox.mock(Object.create(Wireless.prototype));
     this.wirelessMock.object.commands = {};
     this.wirelessMock.object.connected = false;
     this.wirelessMock.object.updateFrequency = 1;

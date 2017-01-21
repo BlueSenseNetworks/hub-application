@@ -14,8 +14,8 @@ describe.skip('BeaconSync', function() {
   beforeEach(function() {
     this.sandbox = sinon.sandbox.create();
 
-    this.bleScannerMock = this.sandbox.mock(BleScanner.prototype);
-    this.busMock = this.sandbox.mock(Bus.prototype);
+    this.bleScannerMock = this.sandbox.mock(Object.create(BleScanner.prototype));
+    this.busMock = this.sandbox.mock(Object.create(Bus.prototype));
     this.loggerStub = sinon.createStubInstance(Logger);
     this.osMock = this.sandbox.mock(os);
     this.machineMock = this.sandbox.mock(Machine);

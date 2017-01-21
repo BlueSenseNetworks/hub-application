@@ -12,7 +12,7 @@ describe('Machine', function() {
   beforeEach(function() {
     this.sandbox = sinon.sandbox.create();
 
-    this.configMock = this.sandbox.mock(Config.prototype);
+    this.configMock = this.sandbox.mock(Object.create(Config.prototype));
     this.fsMock = this.sandbox.mock(fs);
     this.loggerStub = sinon.createStubInstance(Logger);
 
@@ -110,5 +110,5 @@ describe('Machine', function() {
     it('should return the root directory of the application', function() {
       //TODO
     });
-  })
+  });
 });

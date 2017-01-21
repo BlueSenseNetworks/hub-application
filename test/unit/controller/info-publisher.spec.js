@@ -14,7 +14,7 @@ describe('InfoPublisher', function() {
   beforeEach(function() {
     this.sandbox = sinon.sandbox.create();
 
-    this.busMock = this.sandbox.mock(Bus.prototype);
+    this.busMock = this.sandbox.mock(Object.create(Bus.prototype));
     this.loggerStub = sinon.createStubInstance(Logger);
     this.osMock = this.sandbox.mock(os);
     this.machineMock = this.sandbox.mock(Machine);

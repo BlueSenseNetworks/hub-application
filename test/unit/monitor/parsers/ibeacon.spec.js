@@ -1,29 +1,28 @@
 const IBeacon = require('../../../../lib/bluesense-superhub/models/ble-devices/ibeacon');
 const Device = require('../../../../lib/bluesense-superhub/models/device');
 const iBeaconParser = require('../../../../lib/bluesense-superhub/monitor/parsers/ibeacon');
-const fs = require('fs');
+const iBeaconFixture = require('./fixtures/ibeacon.json');
 
 describe('IBeaconParser', function() {
   before(function() {
-    this.expected = JSON.parse(fs.readFileSync('test/unit/monitor/parsers/fixtures/ibeacon.json', 'utf8'));
     this.device = new Device({
       rssi: -15,
       advertisement: {
         localName: 'BlueBar Beacon 5C313EF609EC',
-        manufacturerData: this.expected.manufacturerData
+        manufacturerData: iBeaconFixture.manufacturerData
       }
     });
   });
 
   describe('#parse(device)', function() {
     it('should return the iBeacon model if the device is an iBeacon', function() {
-      let iBeacon = new IBeacon({
-        uuid: this.expected.uuid,
-        major: this.expected.major,
-        minor: this.expected.minor,
-        measuredPower: this.expected.measuredPower,
-        accuracy: this.expected.accuracy,
-        proximity: this.expected.proximity
+      const iBeacon = new IBeacon({
+        uuid: iBeaconFixture.uuid,
+        major: iBeaconFixture.major,
+        minor: iBeaconFixture.minor,
+        measuredPower: iBeaconFixture.measuredPower,
+        accuracy: iBeaconFixture.accuracy,
+        proximity: iBeaconFixture.proximity
       });
 
       iBeaconParser.parse(this.device).should.deep.equal(iBeacon);

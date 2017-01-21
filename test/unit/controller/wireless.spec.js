@@ -18,8 +18,8 @@ describe('Wireless', function() {
     this.sandbox = sinon.sandbox.create();
     this.sandbox.useFakeTimers();
 
-    this.wirelessMock = this.sandbox.mock(Wireless.prototype);
-    this.busMock = this.sandbox.mock(Bus.prototype);
+    this.wirelessMock = this.sandbox.mock(Object.create(Wireless.prototype));
+    this.busMock = this.sandbox.mock(Object.create(Bus.prototype));
     this.loggerStub = sinon.createStubInstance(Logger);
     this.machineMock = this.sandbox.mock(Machine);
 

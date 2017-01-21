@@ -13,10 +13,10 @@ describe('Monitor', function() {
     this.sandbox = sinon.sandbox.create();
     this.sandbox.useFakeTimers();
 
-    this.bleScannerMock = this.sandbox.mock(BleScanner.prototype);
-    this.deviceResolverMock = this.sandbox.mock(DeviceResolver.prototype);
-    this.busMock = this.sandbox.mock(Bus.prototype);
-    this.loggerStub = this.sandbox.mock(Logger.prototype);
+    this.bleScannerMock = this.sandbox.mock(Object.create(BleScanner.prototype));
+    this.deviceResolverMock = this.sandbox.mock(Object.create(DeviceResolver.prototype));
+    this.busMock = this.sandbox.mock(Object.create(Bus.prototype));
+    this.loggerStub = this.sandbox.mock(Object.create(Logger.prototype));
 
     this.Monitor = proxyquire('../../lib/bluesense-superhub/monitor', {
       './messaging/bus': {
@@ -138,7 +138,6 @@ describe('Monitor', function() {
             manufacturerData: '2c000215a0b137303a9a11e3aa6e0800200c9a66802057b5c0'
           }
         });
-
       });
 
       it('should include device info if the device has been resolved', function() {

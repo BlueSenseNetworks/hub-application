@@ -10,8 +10,8 @@ describe('Router', function() {
     this.sandbox = sinon.sandbox.create();
     this.sandbox.useFakeTimers();
 
-    this.busMock = this.sandbox.mock(Bus.prototype);
-    this.webSocketMock = this.sandbox.mock(WebSocket.prototype);
+    this.busMock = this.sandbox.mock(Object.create(Bus.prototype));
+    this.webSocketMock = this.sandbox.mock(Object.create(WebSocket.prototype));
     this.loggerStub = sinon.createStubInstance(Logger);
     this.configMock = this.sandbox.mock(Config);
 
@@ -104,7 +104,11 @@ describe('Router', function() {
     context('disconnect', function() {
       context('current state: connected', function() {
         beforeEach(function() {
-          this.router._connected = true;
+          this.busMock
+            .expects('publish')
+            .withArgs(new Message(Message.route.connectedToPlatform));
+
+          this.webSocketMock.object.emit('connect');
         });
 
         it('should notify listeners that the platform has disconnected', function() {

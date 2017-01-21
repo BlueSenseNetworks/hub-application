@@ -3,8 +3,9 @@
     "mocha": true
   },
   "globals": {
-    "sinon": true,
-    "proxyquire": true
+    "sinon": false,
+    "proxyquire": false,
+    "should": false,
   },
   "rules": {
     "strict": 0
